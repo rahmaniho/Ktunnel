@@ -133,6 +133,16 @@ jobs:
               | xargs -0 grep -hoE 'at ir\.karensoft[^<]*' 2>/dev/null | head -40 || true
             echo '```'
             echo
+            echo '## خطاهای Lint'
+            echo
+            echo '```'
+            find . -path '*/build/reports/lint-results*.xml' -print0 2>/dev/null \
+              | xargs -0 grep -hoE 'id="[^"]*"[^>]*severity="[^"]*"|message="[^"]*"' 2>/dev/null \
+              | head -60 || true
+            find . -path '*/build/reports/lint-results*' -name '*.txt' -print0 2>/dev/null \
+              | xargs -0 head -60 2>/dev/null || true
+            echo '```'
+            echo
             echo '## ۱۲۰ خط آخر خروجی'
             echo
             echo '```'
