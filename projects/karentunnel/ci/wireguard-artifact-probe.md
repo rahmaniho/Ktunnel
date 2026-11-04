@@ -1,6 +1,6 @@
 # WireGuard artifact availability
 
-- date: 2026-11-04T03:06:09Z
+- date: 2026-11-04T03:09:45Z
 
 ## 1. Maven Central search API (group = com.wireguard.android)
 
