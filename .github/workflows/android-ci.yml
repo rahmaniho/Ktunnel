@@ -496,3 +496,83 @@ jobs:
           name: karentunnel-release-apk-ci-signed
           path: projects/karentunnel/app/build/outputs/apk/release/*.apk
           retention-days: 14
+
+  # Publishes the built APKs as a GitHub Release, because Actions artifacts
+  # redirect to a storage host that is not reachable from the development
+  # sandbox -- which meant "the APK exists in CI" could never become "here is
+  # the APK". Release assets on a public repository download directly.
+  #
+  # Only runs on the default branch, so a work-in-progress branch cannot
+  # publish something that looks official.
+  publish-release:
+    name: publish APK as a release
+    needs: [build-and-test, release-apk]
+    if: github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Download the debug APK
+        uses: actions/download-artifact@v4
+        with:
+          name: karentunnel-debug-apk
+          path: dist/debug
+
+      - name: Download the release APK
+        uses: actions/download-artifact@v4
+        with:
+          name: karentunnel-release-apk-ci-signed
+          path: dist/release
+
+      - name: Collect and rename
+        id: collect
+        run: |
+          set -euo pipefail
+          mkdir -p out
+          DEBUG_APK=$(find dist/debug -name '*.apk' | head -1)
+          REL_APK=$(find dist/release -name '*.apk' | head -1)
+          cp "$DEBUG_APK" out/karentunnel-debug.apk
+          cp "$REL_APK" out/karentunnel-release-ci-signed.apk
+          # The commit is in the file name so two builds can never be confused,
+          # and so the APK can be traced back to the exact source it came from.
+          SHORT="${GITHUB_SHA:0:7}"
+          echo "short=$SHORT" >> "$GITHUB_OUTPUT"
+          ls -l out/
+          {
+            echo "build commit: ${GITHUB_SHA}"
+            echo "run: https://github.com/${GITHUB_REPOSITORY}/actions/runs/${GITHUB_RUN_ID}"
+            echo "version: 0.1.0"
+            echo
+            echo "sha256:"
+            (cd out && sha256sum *.apk)
+          } > out/BUILD-INFO.txt
+          cat out/BUILD-INFO.txt
+
+      - name: Publish release
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          set -euo pipefail
+          TAG="build-$(date -u +%Y%m%d)-${{ steps.collect.outputs.short }}"
+
+          cat > "$RUNNER_TEMP/notes.md" <<NOTES
+          بیلد خودکار از کامیت ${{ github.sha }}.
+
+          - **karentunnel-debug.apk** — با کلید debug اندروید امضا شده. برای نصب شخصی روی دستگاه.
+          - **karentunnel-release-ci-signed.apk** — با R8 کوچک شده، ولی با یک کلید موقت
+            تولیدشده در CI امضا شده. برای توزیع عمومی مناسب نیست.
+
+          هیچ‌کدام روی دستگاه آزمون نشده‌اند: نه تونلی برپا شده، نه دست‌دادنی انجام شده.
+          جزئیات در docs/SECURITY-REPORT.md.
+          NOTES
+
+          if gh release view "$TAG" >/dev/null 2>&1; then
+            echo "release $TAG already exists; uploading assets to it"
+            gh release upload "$TAG" out/*.apk out/BUILD-INFO.txt --clobber
+          else
+            gh release create "$TAG" out/*.apk out/BUILD-INFO.txt \
+              --title "KarenTunnel build $TAG" \
+              --notes-file "$RUNNER_TEMP/notes.md"
+          fi
+          echo "published: $(gh release view "$TAG" --json url -q .url)"
