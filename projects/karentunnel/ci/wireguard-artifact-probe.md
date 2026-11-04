@@ -1,6 +1,6 @@
 # WireGuard artifact availability
 
-- date: 2026-11-04T09:19:46Z
+- date: 2026-11-04T09:24:13Z
 
 ## 1. Maven Central search API (group = com.wireguard.android)
 
@@ -52,5 +52,5 @@
 
 ## 5. Can Gradle resolve it in this exact project?
 
-|    +--- com.wireguard.android:tunnel:1.0.20260102
-\--- com.wireguard.android:tunnel:1.0.20260102 (*)
+BUILD FAILED in 40s
+no wireguard lines found in dependency report
