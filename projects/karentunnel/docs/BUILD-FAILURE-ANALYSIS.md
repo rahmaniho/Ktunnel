@@ -51,9 +51,34 @@ workflow در صورت شکست، خودِ لاگ را در `ci/last-failure.md`
 
 - ~~نسخه‌های Compose/AndroidX~~ — **حل شد.** `41766458041` همه را resolve و
   کل app را کامپایل کرد.
-- **امضای `Backend`/`Tunnel`** — کد کامپایل می‌شود، پس امضاها با AAR نسخهٔ
-  `1.0.20260102` سازگارند. اما ابزار `wireguard-api` (استخراج تایپ‌ها با `javap`)
-  هنوز سبز نشده، پس تطبیق نهایی از روی مستند AAR انجام نشده است.
+- ~~امضای `Backend`/`Tunnel`~~ — **حل شد.** اجرای `41767804110` تایپ‌های واقعی
+  AAR نسخهٔ `1.0.20260102` را استخراج کرد (`ci/wireguard-api.md`):
+
+  ```java
+  public interface Backend {
+      Set<String> getRunningTunnelNames();
+      Tunnel.State getState(Tunnel) throws Exception;
+      Statistics getStatistics(Tunnel) throws Exception;   // ← متد، نه پراپرتی
+      String getVersion() throws Exception;                // ← بدون آرگومان
+      boolean isAlwaysOn() throws Exception;
+      boolean isLockdownEnabled() throws Exception;
+      Tunnel.State setState(Tunnel, Tunnel.State, Config) throws Exception;
+  }
+  public interface Tunnel {
+      String getName();
+      void onStateChange(Tunnel.State);
+  }
+  public class Statistics {
+      boolean isStale();
+      PeerStats peer(Key);
+      Key[] peers();
+      long totalRx();
+      long totalTx();
+  }
+  ```
+
+  کد ما دقیقاً با همین امضاها فراخوانی می‌کند و کامپایل می‌شود؛ پس تطبیق با
+  کتابخانهٔ واقعی تأیید شده است.
 - **رفتار زمان اجرا** — هیچ‌چیز روی دستگاه اجرا نشده. `GoBackend`، `VpnService`،
   Keystore و Compose فقط کامپایل شده‌اند.
 
