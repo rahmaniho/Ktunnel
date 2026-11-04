@@ -86,7 +86,7 @@ jobs:
       - name: Publish build diagnostics to the branch
         if: failure()
         run: |
-          mkdir -p projects/karentunnel/ci
+          mkdir -p ci
           {
             echo "# آخرین خروجی ناموفق CI"
             echo
@@ -105,11 +105,11 @@ jobs:
             echo '```'
             tail -120 /tmp/gradle.log 2>/dev/null || true
             echo '```'
-          } > projects/karentunnel/ci/last-failure.md
+          } > ci/last-failure.md
 
           git config user.name  "android-ci"
           git config user.email "android-ci@users.noreply.github.com"
-          git add projects/karentunnel/ci/last-failure.md
+          git add ci/last-failure.md
           git commit -m "ci: record failing build output for run $GITHUB_RUN_ID" || exit 0
           # The branch may have moved while the build ran; rebase and retry once.
           git pull --rebase --autostash origin "$GITHUB_REF_NAME" || true
@@ -142,3 +142,109 @@ jobs:
           name: karentunnel-debug-apk
           path: projects/karentunnel/app/build/outputs/apk/debug/*.apk
           retention-days: 14
+
+  # The WireGuard tunnel library is the one dependency whose availability we
+  # could not check from the development sandbox. Rather than guess again, ask
+  # Maven directly and record the answer in the run summary.
+  dependency-probe:
+    name: dependency availability probe
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Query Maven Central for com.wireguard.android
+        run: |
+          {
+            echo "## com.wireguard.android artifact search"
+            echo
+            echo '```'
+            curl -s --max-time 30 \
+              "https://search.maven.org/solrsearch/select?q=g:%22com.wireguard.android%22&rows=40&wt=json" \
+              || echo "search API unreachable"
+            echo
+            echo '```'
+            echo
+            echo "## direct metadata probes"
+            echo
+            echo '```'
+            for a in tunnel tunnel wg tunnel-android; do
+              code=$(curl -s --max-time 20 -o /tmp/m.xml -w '%{http_code}' \
+                "https://repo1.maven.org/maven2/com/wireguard/android/$a/maven-metadata.xml")
+              echo "$a -> HTTP $code"
+              [ "$code" = "200" ] && head -c 400 /tmp/m.xml && echo
+            done
+            echo '```'
+          } >> "$GITHUB_STEP_SUMMARY"
+
+  # Compiles every module that does not depend on the WireGuard library. This
+  # isolates real Kotlin errors from artifact-resolution failures, so a single
+  # run tells us both things.
+  compile-without-wireguard:
+    name: compile core/vpn/data/diagnostics (no app)
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v4
+      - name: Set up JDK 17
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "17"
+      - name: Set up Android SDK
+        run: |
+          set -euo pipefail
+          SDK_ROOT="$RUNNER_TOOL_CACHE/android-sdk"
+          mkdir -p "$SDK_ROOT/cmdline-tools"
+          curl -fsSL -o /tmp/cmdtools.zip \
+            https://dl.google.com/android/repository/commandlinetools-linux-11076708_latest.zip
+          unzip -q /tmp/cmdtools.zip -d "$SDK_ROOT/cmdline-tools"
+          mv "$SDK_ROOT/cmdline-tools/cmdline-tools" "$SDK_ROOT/cmdline-tools/latest"
+          yes | "$SDK_ROOT/cmdline-tools/latest/bin/sdkmanager" --licenses >/dev/null 2>&1 || true
+          "$SDK_ROOT/cmdline-tools/latest/bin/sdkmanager" --install \
+            "platform-tools" "platforms;android-36" "build-tools;35.0.0" >/dev/null
+          echo "ANDROID_HOME=$SDK_ROOT" >> "$GITHUB_ENV"
+          echo "ANDROID_SDK_ROOT=$SDK_ROOT" >> "$GITHUB_ENV"
+      - name: Set up Gradle
+        uses: gradle/actions/setup-gradle@v4
+      - name: Compile and test the four library modules
+        run: |
+          set +e
+          ./gradlew \
+            :core:testDebugUnitTest \
+            :diagnostics:testDebugUnitTest \
+            :data:testDebugUnitTest \
+            :vpn:compileDebugKotlin \
+            --stacktrace 2>&1 | tee /tmp/gradle-nowg.log
+          status=${PIPESTATUS[0]}
+          {
+            echo "## compile without the WireGuard library: exit $status"
+            echo
+            echo '```'
+            grep -E '(^e: |^w: |error:|FAILED|Execution failed|Could not resolve|Could not find)' \
+              /tmp/gradle-nowg.log | head -120 || true
+            echo '```'
+          } >> "$GITHUB_STEP_SUMMARY"
+          exit "$status"
+      - name: Record failure in the branch
+        if: failure()
+        run: |
+          mkdir -p ci
+          {
+            echo "# شکست کامپایل چهار ماژول کتابخانه‌ای"
+            echo
+            echo "- اجرا: $GITHUB_SERVER_URL/$GITHUB_REPOSITORY/actions/runs/$GITHUB_RUN_ID"
+            echo
+            echo '```'
+            grep -E '(^e: |^w: |error:|FAILED|Execution failed|Could not resolve|Could not find)' \
+              /tmp/gradle-nowg.log | head -200 || true
+            echo '```'
+            echo
+            echo '```'
+            tail -80 /tmp/gradle-nowg.log 2>/dev/null || true
+            echo '```'
+          } > ci/last-failure-nowg.md
+          git config user.name "android-ci"
+          git config user.email "android-ci@users.noreply.github.com"
+          git add ci/last-failure-nowg.md
+          git commit -m "ci: record compile-only failure for run $GITHUB_RUN_ID" || exit 0
+          git pull --rebase --autostash origin "$GITHUB_REF_NAME" || true
+          git push origin "HEAD:$GITHUB_REF_NAME" || true
