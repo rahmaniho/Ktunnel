@@ -1,8 +1,8 @@
 # آخرین خروجی ناموفق CI
 
-- اجرا: https://github.com/rahmaniho/Ktunnel/actions/runs/41764940840
-- کامیت: `ddc53b37e76d008fe6a45c4ef8a2887933f31c7a`
-- زمان: 2026-11-04T03:09:00Z
+- اجرا: https://github.com/rahmaniho/Ktunnel/actions/runs/41765319282
+- کامیت: `9211e4b14454ec403bc63575516368090097f47b`
+- زمان: 2026-11-04T03:14:02Z
 
 ## خطاهای کامپایلر
 
@@ -12,7 +12,7 @@
 Execution failed for task ':vpn:lintDebug'.
 org.gradle.api.tasks.TaskExecutionException: Execution failed for task ':vpn:lintDebug'.
 Caused by: java.lang.RuntimeException: Lint found errors in the project; aborting build.
-BUILD FAILED in 37s
+BUILD FAILED in 53s
 ```
 
 ## تست‌های ناموفق
@@ -82,6 +82,41 @@ BUILD FAILED in 37s
 --- failure messages ---
 
 --- stdout / assertion traces ---
+```
+
+## خطاهای Lint
+
+```
+message="Missing permissions required by ConnectivityManager.getActiveNetwork: android.permission.ACCESS_NETWORK_STATE"
+message="Missing permissions required by ConnectivityManager.registerNetworkCallback: android.permission.ACCESS_NETWORK_STATE"
+==> ./data/build/reports/lint-results-debug.txt <==
+No issues found.
+
+==> ./core/build/reports/lint-results-debug.txt <==
+No issues found.
+
+==> ./diagnostics/build/reports/lint-results-debug.txt <==
+No issues found.
+
+==> ./vpn/build/reports/lint-results-debug.txt <==
+/home/runner/work/Ktunnel/Ktunnel/projects/karentunnel/vpn/src/main/kotlin/ir/karensoft/karentunnel/vpn/network/NetworkMonitor.kt:49: Error: Missing permissions required by ConnectivityManager.getActiveNetwork: android.permission.ACCESS_NETWORK_STATE [MissingPermission]
+            val active = cm.activeNetwork
+                         ~~~~~~~~~~~~~~~~
+/home/runner/work/Ktunnel/Ktunnel/projects/karentunnel/vpn/src/main/kotlin/ir/karensoft/karentunnel/vpn/network/NetworkMonitor.kt:107: Error: Missing permissions required by ConnectivityManager.registerNetworkCallback: android.permission.ACCESS_NETWORK_STATE [MissingPermission]
+            cm.registerNetworkCallback(request, callback)
+            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+   Explanation for issues of type "MissingPermission":
+   This check scans through your code and libraries and looks at the APIs
+   being used, and checks this against the set of permissions required to
+   access those APIs. If the code using those APIs is called at runtime, then
+   the program will crash.
+
+   Furthermore, for permissions that are revocable (with targetSdkVersion 23),
+   client code must also be prepared to handle the calls throwing an exception
+   if the user rejects the request for permission at runtime.
+
+2 errors
 ```
 
 ## ۱۲۰ خط آخر خروجی
@@ -205,6 +240,6 @@ BUILD FAILED in 37s
 	at org.gradle.internal.concurrent.AbstractManagedExecutor$1.run(AbstractManagedExecutor.java:48)
 
 
-BUILD FAILED in 37s
+BUILD FAILED in 53s
 196 actionable tasks: 59 executed, 5 from cache, 132 up-to-date
 ```
