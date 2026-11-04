@@ -122,7 +122,7 @@ object ConfigNormalizer {
             protocol = Protocol.WIREGUARD,
             endpointHost = endpoint.host,
             endpointPort = endpoint.port,
-            address = finalAddress,
+            address = address,
             dnsServers = finalDns,
             mtu = mtu,
             allowedIps = allowedIps,

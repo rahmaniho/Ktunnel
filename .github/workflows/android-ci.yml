@@ -149,31 +149,41 @@ jobs:
   dependency-probe:
     name: dependency availability probe
     runs-on: ubuntu-latest
-    timeout-minutes: 10
+    timeout-minutes: 20
     steps:
-      - name: Query Maven Central for com.wireguard.android
+      - uses: actions/checkout@v4
+      - name: Set up JDK 17
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "17"
+      - name: Set up Android SDK
         run: |
-          {
-            echo "## com.wireguard.android artifact search"
-            echo
-            echo '```'
-            curl -s --max-time 30 \
-              "https://search.maven.org/solrsearch/select?q=g:%22com.wireguard.android%22&rows=40&wt=json" \
-              || echo "search API unreachable"
-            echo
-            echo '```'
-            echo
-            echo "## direct metadata probes"
-            echo
-            echo '```'
-            for a in tunnel tunnel wg tunnel-android; do
-              code=$(curl -s --max-time 20 -o /tmp/m.xml -w '%{http_code}' \
-                "https://repo1.maven.org/maven2/com/wireguard/android/$a/maven-metadata.xml")
-              echo "$a -> HTTP $code"
-              [ "$code" = "200" ] && head -c 400 /tmp/m.xml && echo
-            done
-            echo '```'
-          } >> "$GITHUB_STEP_SUMMARY"
+          set -euo pipefail
+          SDK_ROOT="$RUNNER_TOOL_CACHE/android-sdk"
+          mkdir -p "$SDK_ROOT/cmdline-tools"
+          curl -fsSL -o /tmp/cmdtools.zip \
+            https://dl.google.com/android/repository/commandlinetools-linux-11076708_latest.zip
+          unzip -q /tmp/cmdtools.zip -d "$SDK_ROOT/cmdline-tools"
+          mv "$SDK_ROOT/cmdline-tools/cmdline-tools" "$SDK_ROOT/cmdline-tools/latest"
+          yes | "$SDK_ROOT/cmdline-tools/latest/bin/sdkmanager" --licenses >/dev/null 2>&1 || true
+          "$SDK_ROOT/cmdline-tools/latest/bin/sdkmanager" --install \
+            "platform-tools" "platforms;android-36" "build-tools;35.0.0" >/dev/null
+          echo "ANDROID_HOME=$SDK_ROOT" >> "$GITHUB_ENV"
+          echo "ANDROID_SDK_ROOT=$SDK_ROOT" >> "$GITHUB_ENV"
+      - name: Probe Maven for com.wireguard.android
+        run: |
+          chmod +x ci/probe-wireguard.sh
+          ci/probe-wireguard.sh > /tmp/probe.txt 2>&1 || true
+          cat /tmp/probe.txt
+          cat /tmp/probe.txt >> "$GITHUB_STEP_SUMMARY"
+          cp /tmp/probe.txt ci/wireguard-artifact-probe.md
+          git config user.name "android-ci"
+          git config user.email "android-ci@users.noreply.github.com"
+          git add ci/wireguard-artifact-probe.md
+          git commit -m "ci: record WireGuard artifact probe" || exit 0
+          git pull --rebase --autostash origin "$GITHUB_REF_NAME" || true
+          git push origin "HEAD:$GITHUB_REF_NAME" || true
 
   # Compiles every module that does not depend on the WireGuard library. This
   # isolates real Kotlin errors from artifact-resolution failures, so a single
