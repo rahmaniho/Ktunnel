@@ -100,6 +100,25 @@ jobs:
             grep -E '(^e: |^w: |error:|FAILED|Execution failed for task|Caused by:|What went wrong|Could not resolve|Could not find)' /tmp/gradle.log 2>/dev/null | head -200 || true
             echo '```'
             echo
+            echo '## تست‌های ناموفق'
+            echo
+            echo '```'
+            # JUnit XML carries the assertion message in the <failure> element.
+            # One test class per file, so a plain scan is enough and avoids
+            # embedding a script inside this block scalar.
+            find . -path '*/build/test-results/*' -name '*.xml' -print0 2>/dev/null \
+              | xargs -0 grep -ho '<testcase name="[^"]*" classname="[^"]*"' 2>/dev/null \
+              | head -60 || true
+            echo
+            echo '--- failure messages ---'
+            find . -path '*/build/test-results/*' -name '*.xml' -print0 2>/dev/null \
+              | xargs -0 grep -ho 'message="[^"]*"' 2>/dev/null | head -40 || true
+            echo
+            echo '--- stdout / assertion traces ---'
+            find . -path '*/build/test-results/*' -name '*.xml' -print0 2>/dev/null \
+              | xargs -0 grep -hoE 'at ir\.karensoft[^<]*' 2>/dev/null | head -40 || true
+            echo '```'
+            echo
             echo '## ۱۲۰ خط آخر خروجی'
             echo
             echo '```'

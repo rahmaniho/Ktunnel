@@ -40,6 +40,13 @@ class ConnectionManager(
     private val retryPolicy: RetryPolicy = RetryPolicy.DEFAULT,
     private val healthProbe: HealthProbe? = null,
     private val now: () -> Long = { System.currentTimeMillis() },
+    /**
+     * Period of the background confirmation loop. Injectable because
+     * `runTest`'s virtual clock never finishes while a `while (true) { delay }`
+     * job is alive: the loop is *supposed* to be endless in production, so a
+     * test cannot use advanceUntilIdle() with the real period.
+     */
+    private val healthIntervalMillis: Long = HEALTH_INTERVAL_MILLIS,
 ) {
 
     private val _state = MutableStateFlow<ConnectionState>(ConnectionState.Disconnected)
@@ -59,6 +66,12 @@ class ConnectionManager(
 
     /** Delivered after the tunnel is down for any reason, so the FGS can stop. */
     var onTunnelStopped: (suspend () -> Unit)? = null
+
+    /**
+     * The tunnel stopped being provably connected. The UI shows the amber
+     * "متصل، بدون تأیید" state; deciding to reconnect belongs to the caller.
+     */
+    var onDegraded: ((ConnectionState.Degraded) -> Unit)? = null
 
     fun currentConfig(): TunnelConfig? = currentConfig
 
@@ -208,7 +221,7 @@ class ConnectionManager(
         healthJob?.cancel()
         healthJob = scope.launch {
             while (true) {
-                delay(HEALTH_INTERVAL_MILLIS)
+                delay(healthIntervalMillis)
                 val stats = controller.statistics()
                 val evidence = StateMachine.Evidence(
                     backendReportsUp = controller.status() == TunnelStatus.Up,
@@ -216,30 +229,31 @@ class ConnectionManager(
                     lastHandshakeAgeMillis = stats.lastHandshakeAgeMillis,
                 )
                 val current = _state.value
-                val next = when {
-                    StateMachine.canClaimConnected(evidence) ->
-                        if (current is ConnectionState.Connected) current
-                        else ConnectionState.Connected(now())
-                    // Do not demote while we are still within the grace window of
-                    // a fresh connection: the first handshake takes time.
-                    current is ConnectionState.Connected && evidence.lastHandshakeAgeMillis == null ->
-                        current
-                    else -> ConnectionState.Degraded(
+                // Stop as soon as this run no longer owns the tunnel: otherwise a
+                // stale monitor keeps mutating the state of a newer connection.
+                if (currentConfig != config) return@launch
+                if (current !is ConnectionState.Connected) return@launch
+
+                val next = if (StateMachine.canClaimConnected(evidence)) {
+                    current
+                } else {
+                    ConnectionState.Degraded(
                         reason = StateMachine.degradedReasonFor(evidence),
                         lastHandshakeAgeMillis = evidence.lastHandshakeAgeMillis,
                     )
                 }
-                if (next != current) {
+                if (next !== current) {
                     setState(next)
-                    if (next is ConnectionState.Degraded && current is ConnectionState.Connected) {
-                        // A degradation is a connection event worth an immediate
-                        // network-change style recovery attempt.
-                        onNetworkChanged()
+                    if (next is ConnectionState.Degraded) {
+                        // Report the honest state and hand recovery to the caller,
+                        // which decides whether a reconnect is appropriate. Calling
+                        // onNetworkChanged() from here would start a connect run
+                        // that restarts this monitor: a loop that can hammer the
+                        // server every few seconds.
+                        onDegraded?.invoke(next)
                         return@launch
                     }
                 }
-                // Keep the config reference meaningful for diagnostics.
-                if (currentConfig != config) return@launch
             }
         }
     }
