@@ -1,16 +1,16 @@
 # آخرین خروجی ناموفق CI
 
-- اجرا: https://github.com/rahmaniho/Ktunnel/actions/runs/41765319282
-- کامیت: `9211e4b14454ec403bc63575516368090097f47b`
-- زمان: 2026-11-04T03:14:02Z
+- اجرا: https://github.com/rahmaniho/Ktunnel/actions/runs/41765886354
+- کامیت: `d88f2c1ff593aebe1ff3cee4b3e01a909aff1244`
+- زمان: 2026-11-04T03:19:05Z
 
 ## خطاهای کامپایلر
 
 ```
-> Task :vpn:lintDebug FAILED
+> Task :app:lintDebug FAILED
 * What went wrong:
-Execution failed for task ':vpn:lintDebug'.
-org.gradle.api.tasks.TaskExecutionException: Execution failed for task ':vpn:lintDebug'.
+Execution failed for task ':app:lintDebug'.
+org.gradle.api.tasks.TaskExecutionException: Execution failed for task ':app:lintDebug'.
 Caused by: java.lang.RuntimeException: Lint found errors in the project; aborting build.
 BUILD FAILED in 53s
 ```
@@ -87,36 +87,114 @@ BUILD FAILED in 53s
 ## خطاهای Lint
 
 ```
-message="Missing permissions required by ConnectivityManager.getActiveNetwork: android.permission.ACCESS_NETWORK_STATE"
-message="Missing permissions required by ConnectivityManager.registerNetworkCallback: android.permission.ACCESS_NETWORK_STATE"
+message="Not targeting the latest versions of Android; compatibility modes apply. Consider testing and updating this version. Consult the `android.os.Build.VERSION_CODES` javadoc for details."
+message="Not targeting the latest versions of Android; compatibility modes apply. Consider testing and updating this version. Consult the `android.os.Build.VERSION_CODES` javadoc for details."
+message="foregroundServiceType:systemExempted requires permission:[android.permission.FOREGROUND_SERVICE_SYSTEM_EXEMPTED] AND any permission in list:[android.permission.SCHEDULE_EXACT_ALARM, android.permission.USE_EXACT_ALARM]"
+message="A newer version of Gradle than 8.13 is available: 8.14.6"
+message="A newer version of com.android.application than 8.13.2 is available: 9.5.0"
+message="A newer version of com.android.library than 8.13.2 is available: 9.5.0"
+message="A newer version of androidx.core:core-ktx than 1.15.0 is available: 1.19.1"
+message="A newer version of androidx.activity:activity-compose than 1.10.1 is available: 1.13.0"
+message="A newer version of androidx.lifecycle:lifecycle-runtime-compose than 2.9.1 is available: 2.11.0"
+message="A newer version of androidx.lifecycle:lifecycle-runtime-ktx than 2.9.1 is available: 2.11.0"
+message="A newer version of androidx.lifecycle:lifecycle-viewmodel-compose than 2.9.1 is available: 2.11.0"
+message="A newer version of androidx.compose:compose-bom than 2025.06.01 is available: 2026.09.00"
+message="A newer version of androidx.datastore:datastore-preferences than 1.1.7 is available: 1.3.0"
+message="A newer version of androidx.annotation:annotation than 1.9.1 is available: 1.11.0"
+message="A newer version of androidx.collection:collection than 1.5.0 is available: 1.7.0"
+message="A newer version of androidx.test.ext:junit than 1.2.1 is available: 1.3.0"
+message="A newer version of androidx.test.espresso:espresso-core than 3.6.1 is available: 3.7.0"
+message="A newer version of org.jetbrains.kotlin.android than 2.1.20 is available: 2.4.21"
+message="A newer version of org.jetbrains.kotlin.plugin.compose than 2.1.20 is available: 2.4.21"
+message="A newer version of org.jetbrains.kotlin.plugin.serialization than 2.1.20 is available: 2.4.21"
+message="A newer version of org.jetbrains.kotlinx:kotlinx-coroutines-android than 1.10.2 is available: 1.11.0"
+message="A newer version of org.jetbrains.kotlinx:kotlinx-coroutines-core than 1.10.2 is available: 1.11.0"
+message="A newer version of org.jetbrains.kotlinx:kotlinx-serialization-json than 1.8.1 is available: 1.12.0"
+message="A newer version of com.google.truth:truth than 1.4.4 is available: 1.4.5"
+message="A newer version of io.mockk:mockk than 1.14.2 is available: 1.14.11"
+message="A newer version of org.jetbrains.kotlinx:kotlinx-coroutines-test than 1.10.2 is available: 1.11.0"
+message="A newer version of org.robolectric:robolectric than 4.14.1 is available: 4.17"
+message="A newer version of app.cash.turbine:turbine than 1.2.0 is available: 1.2.1"
+message="Unnecessary; `SDK_INT` is always >= 26"
+message="This folder configuration (`v26`) is unnecessary; `minSdkVersion` is 26. Merge all the resources in this folder into `mipmap-anydpi`."
+message="The resource `R.string.about_version` appears to be unused"
+message="The resource `R.string.about_backend` appears to be unused"
+message="The resource `R.string.about_licenses` appears to be unused"
+message="The resource `R.string.about_security_note` appears to be unused"
+message="The application adaptive icon is missing a monochrome tag"
 ==> ./data/build/reports/lint-results-debug.txt <==
 No issues found.
 
 ==> ./core/build/reports/lint-results-debug.txt <==
 No issues found.
 
+==> ./app/build/reports/lint-results-debug.txt <==
+/home/runner/work/Ktunnel/Ktunnel/projects/karentunnel/app/build.gradle.kts:15: Warning: Not targeting the latest versions of Android; compatibility modes apply. Consider testing and updating this version. Consult the android.os.Build.VERSION_CODES javadoc for details. [OldTargetApi]
+        targetSdk = libs.versions.targetSdk.get().toInt()
+        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/home/runner/work/Ktunnel/Ktunnel/projects/karentunnel/gradle/libs.versions.toml:14: Warning: Not targeting the latest versions of Android; compatibility modes apply. Consider testing and updating this version. Consult the android.os.Build.VERSION_CODES javadoc for details. [OldTargetApi]
+targetSdk = "35"
+            ~~~~
+
+   Explanation for issues of type "OldTargetApi":
+   When your application or sdk runs on a version of Android that is more
+   recent than your targetSdkVersion specifies that it has been tested with,
+   various compatibility modes kick in. This ensures that your application
+   continues to work, but it may look out of place. For example, if the
+   targetSdkVersion is less than 14, your app may get an option button in the
+   UI.
+
+   To fix this issue, set the targetSdkVersion to the highest available value.
+   Then test your app to make sure everything works correctly. You may want to
+   consult the compatibility notes to see what changes apply to each version
+   you are adding support for:
+   https://developer.android.com/reference/android/os/Build.VERSION_CODES.html
+   as well as follow this guide:
+   https://developer.android.com/distribute/best-practices/develop/target-sdk.
+   html
+
+   https://developer.android.com/distribute/best-practices/develop/target-sdk.html
+
+/home/runner/work/Ktunnel/Ktunnel/projects/karentunnel/app/src/main/AndroidManifest.xml:58: Error: foregroundServiceType:systemExempted requires permission:[android.permission.FOREGROUND_SERVICE_SYSTEM_EXEMPTED] AND any permission in list:[android.permission.SCHEDULE_EXACT_ALARM, android.permission.USE_EXACT_ALARM] [ForegroundServicePermission]
+        <service
+        ^
+
+   Explanation for issues of type "ForegroundServicePermission":
+   For targetSdkVersion >= 34, each foregroundServiceType listed in the
+   <service> element requires specific sets of permissions to be declared in
+   the manifest. If permissions are missing, then when the foreground service
+   is started with a foregroundServiceType that has missing permissions, a
+   SecurityException will be thrown.
+
+/home/runner/work/Ktunnel/Ktunnel/projects/karentunnel/gradle/wrapper/gradle-wrapper.properties:3: Warning: A newer version of Gradle than 8.13 is available: 8.14.6 [AndroidGradlePluginVersion]
+distributionUrl=https\://services.gradle.org/distributions/gradle-8.13-bin.zip
+                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/home/runner/work/Ktunnel/Ktunnel/projects/karentunnel/gradle/libs.versions.toml:7: Warning: A newer version of com.android.application than 8.13.2 is available: 9.5.0 [AndroidGradlePluginVersion]
+agp = "8.13.2"
+      ~~~~~~~~
+/home/runner/work/Ktunnel/Ktunnel/projects/karentunnel/gradle/libs.versions.toml:7: Warning: A newer version of com.android.library than 8.13.2 is available: 9.5.0 [AndroidGradlePluginVersion]
+agp = "8.13.2"
+      ~~~~~~~~
+
+   Explanation for issues of type "AndroidGradlePluginVersion":
+   This detector looks for usage of the Android Gradle Plugin where the
+   version you are using is not the current stable release. Using older
+   versions is fine, and there are cases where you deliberately want to stick
+   with an older version. However, you may simply not be aware that a more
+   recent version is available, and that is what this lint check helps find.
+
+/home/runner/work/Ktunnel/Ktunnel/projects/karentunnel/gradle/libs.versions.toml:24: Warning: A newer version of androidx.core:core-ktx than 1.15.0 is available: 1.19.1 [GradleDependency]
+coreKtx = "1.15.0"
+          ~~~~~~~~
+/home/runner/work/Ktunnel/Ktunnel/projects/karentunnel/gradle/libs.versions.toml:25: Warning: A newer version of androidx.activity:activity-compose than 1.10.1 is available: 1.13.0 [GradleDependency]
+activityCompose = "1.10.1"
+                  ~~~~~~~~
+
 ==> ./diagnostics/build/reports/lint-results-debug.txt <==
 No issues found.
 
 ==> ./vpn/build/reports/lint-results-debug.txt <==
-/home/runner/work/Ktunnel/Ktunnel/projects/karentunnel/vpn/src/main/kotlin/ir/karensoft/karentunnel/vpn/network/NetworkMonitor.kt:49: Error: Missing permissions required by ConnectivityManager.getActiveNetwork: android.permission.ACCESS_NETWORK_STATE [MissingPermission]
-            val active = cm.activeNetwork
-                         ~~~~~~~~~~~~~~~~
-/home/runner/work/Ktunnel/Ktunnel/projects/karentunnel/vpn/src/main/kotlin/ir/karensoft/karentunnel/vpn/network/NetworkMonitor.kt:107: Error: Missing permissions required by ConnectivityManager.registerNetworkCallback: android.permission.ACCESS_NETWORK_STATE [MissingPermission]
-            cm.registerNetworkCallback(request, callback)
-            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-   Explanation for issues of type "MissingPermission":
-   This check scans through your code and libraries and looks at the APIs
-   being used, and checks this against the set of permissions required to
-   access those APIs. If the code using those APIs is called at runtime, then
-   the program will crash.
-
-   Furthermore, for permissions that are revocable (with targetSdkVersion 23),
-   client code must also be prepared to handle the calls throwing an exception
-   if the user rejects the request for permission at runtime.
-
-2 errors
+No issues found.
 ```
 
 ## ۱۲۰ خط آخر خروجی
@@ -241,5 +319,5 @@ No issues found.
 
 
 BUILD FAILED in 53s
-196 actionable tasks: 59 executed, 5 from cache, 132 up-to-date
+198 actionable tasks: 61 executed, 5 from cache, 132 up-to-date
 ```
