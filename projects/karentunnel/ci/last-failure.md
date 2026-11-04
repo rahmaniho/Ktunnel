@@ -1,35 +1,36 @@
 # آخرین خروجی ناموفق CI
 
-- اجرا: https://github.com/rahmaniho/Ktunnel/actions/runs/41760453710
-- کامیت: `784d024d55a4cfc9af5b1a46b574ed7488afbe2d`
-- زمان: 2026-11-04T02:25:01Z
+- اجرا: https://github.com/rahmaniho/Ktunnel/actions/runs/41760692805
+- کامیت: `aa0a6906e2813285131df2131528c448c6e3eec8`
+- زمان: 2026-11-04T02:27:24Z
 
 ## خطاهای کامپایلر
 
 ```
-e: warnings found and -Werror specified
-w: file:///home/runner/work/Ktunnel/Ktunnel/projects/karentunnel/core/src/test/kotlin/ir/karensoft/karentunnel/core/connection/ConnectionStateMachineTest.kt:67:20 Check for instance is always 'false'.
-> Task :core:compileDebugUnitTestKotlin FAILED
+> Task :vpn:compileDebugUnitTestKotlin FAILED
+e: file:///home/runner/work/Ktunnel/Ktunnel/projects/karentunnel/vpn/src/test/kotlin/ir/karensoft/karentunnel/vpn/connection/ConnectionManagerTest.kt:127:31 Function invocation 'isActive()' expected.
+e: file:///home/runner/work/Ktunnel/Ktunnel/projects/karentunnel/vpn/src/test/kotlin/ir/karensoft/karentunnel/vpn/connection/ConnectionManagerTest.kt:143:31 Function invocation 'isActive()' expected.
+> Task :app:compileDebugKotlin FAILED
+e: file:///home/runner/work/Ktunnel/Ktunnel/projects/karentunnel/app/src/main/kotlin/ir/karensoft/karentunnel/di/AppContainer.kt:37:42 Cannot access class 'Json'. Check your module classpath for missing or conflicting dependencies.
+e: file:///home/runner/work/Ktunnel/Ktunnel/projects/karentunnel/app/src/main/kotlin/ir/karensoft/karentunnel/service/TunnelForegroundService.kt:104:46 Unresolved reference 'stat_sys_vpn_ic'.
+e: file:///home/runner/work/Ktunnel/Ktunnel/projects/karentunnel/app/src/main/kotlin/ir/karensoft/karentunnel/service/TunnelForegroundService.kt:105:14 Unresolved reference 'setContentTitle'.
+e: file:///home/runner/work/Ktunnel/Ktunnel/projects/karentunnel/app/src/main/kotlin/ir/karensoft/karentunnel/ui/text/Format.kt:109:51 'when' expression must be exhaustive. Add the 'InvalidEndpoints' branch or an 'else' branch.
 * What went wrong:
-Execution failed for task ':core:compileDebugUnitTestKotlin'.
-org.gradle.api.tasks.TaskExecutionException: Execution failed for task ':core:compileDebugUnitTestKotlin'.
+Execution failed for task ':vpn:compileDebugUnitTestKotlin'.
+org.gradle.api.tasks.TaskExecutionException: Execution failed for task ':vpn:compileDebugUnitTestKotlin'.
 Caused by: org.gradle.workers.internal.DefaultWorkerExecutor$WorkExecutionException: A failure occurred while executing org.jetbrains.kotlin.compilerRunner.GradleCompilerRunnerWithWorkers$GradleKotlinCompilerWorkAction
 Caused by: org.jetbrains.kotlin.gradle.tasks.CompilationErrorException: Compilation error. See log for more details
-BUILD FAILED in 50s
+* What went wrong:
+Execution failed for task ':app:compileDebugKotlin'.
+org.gradle.api.tasks.TaskExecutionException: Execution failed for task ':app:compileDebugKotlin'.
+Caused by: org.gradle.workers.internal.DefaultWorkerExecutor$WorkExecutionException: A failure occurred while executing org.jetbrains.kotlin.compilerRunner.GradleCompilerRunnerWithWorkers$GradleKotlinCompilerWorkAction
+Caused by: org.jetbrains.kotlin.gradle.tasks.CompilationErrorException: Compilation error. See log for more details
+BUILD FAILED in 1m 7s
 ```
 
 ## ۱۲۰ خط آخر خروجی
 
 ```
-	at org.gradle.internal.execution.steps.CaptureOutputsAfterExecutionStep.execute(CaptureOutputsAfterExecutionStep.java:69)
-	at org.gradle.internal.execution.steps.CaptureOutputsAfterExecutionStep.execute(CaptureOutputsAfterExecutionStep.java:46)
-	at org.gradle.internal.execution.steps.ResolveInputChangesStep.execute(ResolveInputChangesStep.java:40)
-	at org.gradle.internal.execution.steps.ResolveInputChangesStep.execute(ResolveInputChangesStep.java:29)
-	at org.gradle.internal.execution.steps.BuildCacheStep.executeWithoutCache(BuildCacheStep.java:189)
-	at org.gradle.internal.execution.steps.BuildCacheStep.executeAndStoreInCache(BuildCacheStep.java:145)
-	at org.gradle.internal.execution.steps.BuildCacheStep.lambda$executeWithCache$4(BuildCacheStep.java:101)
-	at org.gradle.internal.execution.steps.BuildCacheStep.lambda$executeWithCache$5(BuildCacheStep.java:101)
-	at org.gradle.internal.Try$Success.map(Try.java:175)
 	at org.gradle.internal.execution.steps.BuildCacheStep.executeWithCache(BuildCacheStep.java:85)
 	at org.gradle.internal.execution.steps.BuildCacheStep.lambda$execute$0(BuildCacheStep.java:74)
 	at org.gradle.internal.Either$Left.fold(Either.java:115)
@@ -40,6 +41,7 @@ BUILD FAILED in 50s
 	at org.gradle.internal.execution.steps.StoreExecutionStateStep.execute(StoreExecutionStateStep.java:35)
 	at org.gradle.internal.execution.steps.SkipUpToDateStep.executeBecause(SkipUpToDateStep.java:75)
 	at org.gradle.internal.execution.steps.SkipUpToDateStep.lambda$execute$2(SkipUpToDateStep.java:53)
+	at java.base/java.util.Optional.orElseGet(Optional.java:364)
 	at org.gradle.internal.execution.steps.SkipUpToDateStep.execute(SkipUpToDateStep.java:53)
 	at org.gradle.internal.execution.steps.SkipUpToDateStep.execute(SkipUpToDateStep.java:35)
 	at org.gradle.internal.execution.steps.legacy.MarkSnapshottingInputsFinishedStep.execute(MarkSnapshottingInputsFinishedStep.java:37)
@@ -69,6 +71,7 @@ BUILD FAILED in 50s
 	at org.gradle.internal.execution.steps.ChoosePipelineStep.execute(ChoosePipelineStep.java:40)
 	at org.gradle.internal.execution.steps.ChoosePipelineStep.execute(ChoosePipelineStep.java:23)
 	at org.gradle.internal.execution.steps.ExecuteWorkBuildOperationFiringStep.lambda$execute$2(ExecuteWorkBuildOperationFiringStep.java:67)
+	at java.base/java.util.Optional.orElseGet(Optional.java:364)
 	at org.gradle.internal.execution.steps.ExecuteWorkBuildOperationFiringStep.execute(ExecuteWorkBuildOperationFiringStep.java:67)
 	at org.gradle.internal.execution.steps.ExecuteWorkBuildOperationFiringStep.execute(ExecuteWorkBuildOperationFiringStep.java:39)
 	at org.gradle.internal.execution.steps.IdentityCacheStep.execute(IdentityCacheStep.java:46)
@@ -106,6 +109,9 @@ BUILD FAILED in 50s
 	at org.gradle.execution.plan.DefaultPlanExecutor$ExecutorWorker.run(DefaultPlanExecutor.java:376)
 	at org.gradle.internal.concurrent.ExecutorPolicy$CatchAndRecordFailures.onExecute(ExecutorPolicy.java:64)
 	at org.gradle.internal.concurrent.AbstractManagedExecutor$1.run(AbstractManagedExecutor.java:48)
+	at java.base/java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1136)
+	at java.base/java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:635)
+	at java.base/java.lang.Thread.run(Thread.java:840)
 Caused by: org.jetbrains.kotlin.gradle.tasks.CompilationErrorException: Compilation error. See log for more details
 	at org.jetbrains.kotlin.gradle.tasks.TasksUtilsKt.throwExceptionIfCompilationFailed(tasksUtils.kt:21)
 	at org.jetbrains.kotlin.compilerRunner.GradleKotlinCompilerWork.run(GradleKotlinCompilerWork.kt:119)
@@ -127,6 +133,7 @@ Caused by: org.jetbrains.kotlin.gradle.tasks.CompilationErrorException: Compilat
 	at org.gradle.workers.internal.AbstractWorker.executeWrappedInBuildOperation(AbstractWorker.java:41)
 	at org.gradle.workers.internal.NoIsolationWorkerFactory$1.execute(NoIsolationWorkerFactory.java:59)
 	at org.gradle.workers.internal.DefaultWorkerExecutor.lambda$submitWork$0(DefaultWorkerExecutor.java:174)
+	at java.base/java.util.concurrent.FutureTask.run(FutureTask.java:264)
 	at org.gradle.internal.work.DefaultConditionalExecutionQueue$ExecutionRunner.runExecution(DefaultConditionalExecutionQueue.java:194)
 	at org.gradle.internal.work.DefaultConditionalExecutionQueue$ExecutionRunner.access$700(DefaultConditionalExecutionQueue.java:127)
 	at org.gradle.internal.work.DefaultConditionalExecutionQueue$ExecutionRunner$1.run(DefaultConditionalExecutionQueue.java:169)
@@ -136,9 +143,12 @@ Caused by: org.jetbrains.kotlin.gradle.tasks.CompilationErrorException: Compilat
 	at org.gradle.internal.work.DefaultWorkerLeaseService.runAsWorkerThread(DefaultWorkerLeaseService.java:132)
 	at org.gradle.internal.work.DefaultConditionalExecutionQueue$ExecutionRunner.runBatch(DefaultConditionalExecutionQueue.java:164)
 	at org.gradle.internal.work.DefaultConditionalExecutionQueue$ExecutionRunner.run(DefaultConditionalExecutionQueue.java:133)
-	... 2 more
+	at java.base/java.util.concurrent.Executors$RunnableAdapter.call(Executors.java:539)
+	at java.base/java.util.concurrent.FutureTask.run(FutureTask.java:264)
+	... 5 more
 
+==============================================================================
 
-BUILD FAILED in 50s
-85 actionable tasks: 67 executed, 18 from cache
+BUILD FAILED in 1m 7s
+97 actionable tasks: 76 executed, 21 from cache
 ```
