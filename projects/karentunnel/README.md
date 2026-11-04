@@ -13,7 +13,7 @@
 | جنبه | وضعیت | شاهد |
 | --- | --- | --- |
 | کامپایل | ✅ | اجرای `41807391493` |
-| تست واحد | ✅ **۶۸ تست، ۰ شکست** | `ci/test-totals.txt` |
+| تست واحد | ✅ **۶۸ تست، ۰ شکست** | گام «Report test totals» در اجرای CI |
 | APK دیباگ | ✅ ۲۲٬۱۱۰٬۳۴۶ بایت | artifact `karentunnel-debug-apk` |
 | APK release (R8 + shrink) | ✅ ۵٬۵۸۷٬۲۸۴ بایت | artifact `karentunnel-release-apk-ci-signed` |
 | Lint | ✅ بدون خطا | همان اجرا |

@@ -11,7 +11,7 @@
 | مورد | وضعیت | شاهد |
 | --- | --- | --- |
 | بیلد (۵ ماژول) | ✅ | `41807391493` |
-| تست واحد | ✅ ۶۸ تست / ۰ شکست | `ci/test-totals.txt` |
+| تست واحد | ✅ ۶۸ تست / ۰ شکست | گام «Report test totals» در CI |
 | APK دیباگ | ✅ ۲۲٬۱۱۰٬۳۴۶ بایت | artifact |
 | APK release (R8 + امضای موقت CI) | ✅ ۵٬۵۸۷٬۲۸۴ بایت | job `release-apk` |
 | Lint | ✅ | `41807391493` |
@@ -79,7 +79,7 @@
 ```bash
 # وضعیت
 gh run list --limit 3
-cat projects/karentunnel/ci/test-totals.txt
+gh run view 41807834698 --log | grep 'TOTAL'
 
 # اجرای محلی (نیازمند JDK 17 + Android SDK 36)
 cd projects/karentunnel && ./gradlew testDebugUnitTest

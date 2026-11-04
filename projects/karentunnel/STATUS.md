@@ -51,7 +51,7 @@ device_evidence: none
 | `docs/BUILD-FAILURE-ANALYSIS.md` | ✅ |
 | `CHECKPOINT.md` | ✅ |
 | `decisions/0001..0005` | ✅ ۵ ADR |
-| `ci/test-totals.txt` | ✅ تولیدشده توسط CI |
+| شمارش تست | ✅ در لاگ گام «Report test totals» |
 
 ## مسدودکننده‌ها
 

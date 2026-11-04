@@ -52,7 +52,7 @@ workflow در صورت شکست، خودِ لاگ را در `ci/last-failure.md`
 - ~~نسخه‌های Compose/AndroidX~~ — **حل شد.** `41807834698` همه را resolve و
   کل app را کامپایل کرد.
 - ~~امضای `Backend`/`Tunnel`~~ — **حل شد.** اجرای `41767804110` تایپ‌های واقعی
-  AAR نسخهٔ `1.0.20260102` را استخراج کرد (`ci/wireguard-api.md`):
+  AAR نسخهٔ `1.0.20260102` را استخراج کرد (artifact `wireguard-api-dump`):
 
   ```java
   public interface Backend {

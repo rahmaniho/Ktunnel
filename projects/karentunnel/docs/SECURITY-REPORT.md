@@ -171,7 +171,7 @@ connected` این را برای همهٔ خطاها بررسی می‌کند.
 
 ### ۷.۲ نسخه‌ها pin شده‌اند
 
-هیچ نسخهٔ پویا (`+`، range) وجود ندارد. `ci/wireguard-artifact-probe.md` نشان
+هیچ نسخهٔ پویا (`+`، range) وجود ندارد. artifact `wireguard-artifact-probe` نشان
 می‌دهد نسخهٔ `1.0.20260315` هرگز منتشر نشده — یک اشتباه واقعی که کل بیلد را
 شکست. نسخه‌های pin شده با استعلام مستقیم از `repo1.maven.org` تأیید شده‌اند.
 
@@ -205,7 +205,7 @@ find . -name "*.conf" -not -path "*/build/*"
 cd projects/karentunnel && ./gradlew testDebugUnitTest
 
 # شمارش تست‌های واقعاً اجراشده
-cat ci/test-totals.txt
+gh run view 41807834698 --log | grep 'TOTAL'
 ```
 
 </div>
