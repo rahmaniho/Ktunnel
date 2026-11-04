@@ -527,11 +527,23 @@ jobs:
 
       - name: Collect and rename
         id: collect
+        # The workflow sets a default working-directory of projects/karentunnel,
+        # but download-artifact writes to the workspace root. Without this the
+        # find below looks in projects/karentunnel/dist, finds nothing, and cp
+        # fails on an empty path -- which is exactly what happened first time.
+        working-directory: ${{ github.workspace }}
         run: |
           set -euo pipefail
           mkdir -p out
-          DEBUG_APK=$(find dist/debug -name '*.apk' | head -1)
-          REL_APK=$(find dist/release -name '*.apk' | head -1)
+          DEBUG_APK=$(find dist/debug -name '*.apk' -print -quit)
+          REL_APK=$(find dist/release -name '*.apk' -print -quit)
+          if [ -z "$DEBUG_APK" ] || [ -z "$REL_APK" ]; then
+            echo "::error::APK not found. Contents of dist:"
+            find dist -type f | head -50
+            exit 1
+          fi
+          echo "debug apk:   $DEBUG_APK"
+          echo "release apk: $REL_APK"
           cp "$DEBUG_APK" out/karentunnel-debug.apk
           cp "$REL_APK" out/karentunnel-release-ci-signed.apk
           # The commit is in the file name so two builds can never be confused,
@@ -552,6 +564,7 @@ jobs:
       - name: Publish release
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        working-directory: ${{ github.workspace }}
         run: |
           set -euo pipefail
           TAG="build-$(date -u +%Y%m%d)-${{ steps.collect.outputs.short }}"
