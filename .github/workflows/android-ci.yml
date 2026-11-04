@@ -2,7 +2,8 @@ name: android-ci
 
 on:
   push:
-    branches: [main]
+    # Any branch: agent work happens on arena/* branches and must be verified
+    # before it reaches main, not after.
     paths: ["projects/karentunnel/**"]
   pull_request:
     paths: ["projects/karentunnel/**"]
