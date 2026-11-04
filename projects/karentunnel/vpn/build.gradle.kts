@@ -36,7 +36,6 @@ dependencies {
     implementation(libs.androidx.annotation)
     coreLibraryDesugaring(libs.desugar.jdk.libs)
 
-    testImplementation(testFixtures(project(":core")))
     testImplementation(libs.junit4)
     testImplementation(libs.truth)
     testImplementation(libs.mockk)

@@ -29,7 +29,6 @@ dependencies {
     implementation(libs.kotlinx.serialization.json)
     implementation(libs.androidx.annotation)
 
-    testImplementation(testFixtures(project(":core")))
     testImplementation(libs.junit4)
     testImplementation(libs.truth)
     testImplementation(libs.mockk)

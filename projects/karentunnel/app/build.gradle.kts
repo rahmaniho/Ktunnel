@@ -82,7 +82,6 @@ dependencies {
     implementation(libs.wireguard.tunnel)
     coreLibraryDesugaring(libs.desugar.jdk.libs)
 
-    testImplementation(testFixtures(project(":core")))
     testImplementation(libs.junit4)
     testImplementation(libs.truth)
     testImplementation(libs.mockk)
