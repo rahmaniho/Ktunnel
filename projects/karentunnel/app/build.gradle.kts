@@ -79,6 +79,9 @@ dependencies {
     implementation(libs.androidx.lifecycle.runtime.compose)
     implementation(libs.androidx.lifecycle.viewmodel.compose)
     implementation(libs.kotlinx.coroutines.android)
+    // FileSecureConfigStore's default parameter is a kotlinx Json, so the
+    // type appears in :app's compile classpath and must be declared here.
+    implementation(libs.kotlinx.serialization.json)
     implementation(libs.wireguard.tunnel)
     coreLibraryDesugaring(libs.desugar.jdk.libs)
 

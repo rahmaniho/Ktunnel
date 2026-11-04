@@ -101,7 +101,9 @@ class TunnelForegroundService : Service() {
         }
 
         return NotificationCompat.Builder(this, CHANNEL_ID)
-            .setSmallIcon(android.R.drawable.stat_sys_vpn_ic)
+            // android.R.drawable.stat_sys_vpn_ic is not in the public SDK.
+            // Ship our own monochrome status icon instead.
+            .setSmallIcon(R.drawable.ic_stat_vpn)
             .setContentTitle(title)
             .setContentText(text)
             .setOngoing(true)

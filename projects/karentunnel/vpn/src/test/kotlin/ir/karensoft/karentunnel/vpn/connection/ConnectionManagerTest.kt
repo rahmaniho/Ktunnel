@@ -124,7 +124,7 @@ class ConnectionManagerTest {
         advanceUntilIdle()
 
         assertThat(manager.state.value).isEqualTo(ConnectionState.Disconnected)
-        assertThat(controller.isActive).isFalse()
+        assertThat(controller.isActive()).isFalse()
         assertThat(controller.downCalls).isAtLeast(1)
     }
 
@@ -140,7 +140,7 @@ class ConnectionManagerTest {
         advanceUntilIdle()
 
         assertThat(manager.state.value).isEqualTo(ConnectionState.Disconnected)
-        assertThat(controller.isActive).isFalse()
+        assertThat(controller.isActive()).isFalse()
     }
 
     @Test
