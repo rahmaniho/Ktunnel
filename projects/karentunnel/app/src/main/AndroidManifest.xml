@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
+    <!--
+      systemExempted is the FGS type the platform documents for VPN apps
+      (Settings > Network & Internet > VPN). See docs/TECHNICAL-FEASIBILITY.md F2
+      and the fallback plan in docs/KNOWN-LIMITATIONS.md.
+    -->
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE_SYSTEM_EXEMPTED" />
+    <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
+    <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
+
+    <application
+        android:name=".KarenTunnelApp"
+        android:allowBackup="false"
+        android:dataExtractionRules="@xml/data_extraction_rules"
+        android:fullBackupContent="false"
+        android:icon="@mipmap/ic_launcher"
+        android:label="@string/app_name"
+        android:roundIcon="@mipmap/ic_launcher"
+        android:supportsRtl="true"
+        android:theme="@style/Theme.KarenTunnel"
+        tools:targetApi="35">
+
+        <activity
+            android:name=".MainActivity"
+            android:exported="true"
+            android:launchMode="singleTop"
+            android:theme="@style/Theme.KarenTunnel"
+            android:windowSoftInputMode="adjustResize">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+
+            <!--
+              VpnService.prepare() sends a VIEW intent with ACTION_VPN_SETTINGS
+              (or the generic "android.net.vpn.SETTINGS") when it needs to route
+              the user to system VPN settings. Declaring both keeps the consent
+              flow resolvable on every OEM.
+            -->
+            <intent-filter>
+                <action android:name="android.net.vpn.SETTINGS" />
+                <category android:name="android.intent.category.DEFAULT" />
+            </intent-filter>
+        </activity>
+
+        <!--
+          Our own foreground service. It owns the notification and the
+          "we are alive" contract; the tunnel itself is owned by the WireGuard
+          library's VpnService (declared by its own manifest).
+          exported=false: only this app may start it.
+        -->
+        <service
+            android:name=".service.TunnelForegroundService"
+            android:exported="false"
+            android:foregroundServiceType="systemExempted" />
+
+        <!-- Restore after reboot only when the user opted in. -->
+        <receiver
+            android:name=".boot.BootCompletedReceiver"
+            android:exported="false"
+            android:enabled="true">
+            <intent-filter>
+                <action android:name="android.intent.action.BOOT_COMPLETED" />
+                <action android:name="android.intent.action.MY_PACKAGE_REPLACED" />
+            </intent-filter>
+        </receiver>
+    </application>
+</manifest>

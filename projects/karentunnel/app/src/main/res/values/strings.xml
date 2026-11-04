@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">کارن‌تونل</string>
+
+    <!-- dashboard -->
+    <string name="dashboard_no_server">سروری انتخاب نشده</string>
+    <string name="dashboard_connect_cd_format">دکمهٔ اتصال. وضعیت فعلی: %1$s</string>
+    <string name="metric_duration">مدت اتصال</string>
+    <string name="metric_download">دریافت</string>
+    <string name="metric_upload">ارسال</string>
+    <string name="metric_latency">تأخیر</string>
+    <string name="metric_network">شبکه</string>
+    <string name="metric_ipv6">وضعیت IPv6</string>
+    <string name="error_title">اتصال ناموفق بود</string>
+    <string name="action_tap_to_retry">برای تلاش دوباره، دکمهٔ بالا را بزنید.</string>
+    <string name="action_disconnect_now">قطع کردن اتصال</string>
+    <string name="degraded_title">اتصال تأیید نشده است</string>
+
+    <!-- notifications -->
+    <string name="notif_channel_name">وضعیت اتصال</string>
+    <string name="notif_channel_desc">اعلان دائمی وضعیت تونل کارن‌تونل</string>
+    <string name="notif_title_connected">کارن‌تونل — متصل</string>
+    <string name="notif_title_connecting">کارن‌تونل — در حال اتصال</string>
+    <string name="notif_title_degraded">کارن‌تونل — اتصال تأییدنشده</string>
+    <string name="notif_text_connected">ترافیک شما از تونل عبور می‌کند.</string>
+    <string name="notif_text_connecting">در حال برقراری تونل…</string>
+    <string name="notif_text_degraded">تونل برپاست اما دست‌دادن تأیید نشده؛ برای بررسی ضربه بزنید.</string>
+
+    <!-- about -->
+    <string name="about_version">نسخهٔ برنامه</string>
+    <string name="about_backend">نسخهٔ هستهٔ تونل</string>
+    <string name="about_licenses">مجوزهای متن‌باز</string>
+    <string name="about_security_note">کلید خصوصی روی دستگاه و در Android Keystore محافظت می‌شود و هرگز ارسال نمی‌شود.</string>
+</resources>

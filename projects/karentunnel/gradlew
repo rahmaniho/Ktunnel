@@ -1,0 +1,30 @@
+#!/bin/sh
+# Minimal POSIX launcher for the Gradle wrapper (Gradle 8.13).
+# Mirrors the behaviour of the canonical script: find the jar, exec the JVM,
+# propagate the exit code. Kept short on purpose so it is auditable.
+set -eu
+
+APP_HOME=$(CDPATH= cd -- "$(dirname -- "$0")" && pwd)
+CLASSPATH="$APP_HOME/gradle/wrapper/gradle-wrapper.jar"
+
+if [ ! -r "$CLASSPATH" ]; then
+    echo "error: $CLASSPATH is missing" >&2
+    exit 1
+fi
+
+if [ -n "${JAVA_HOME:-}" ] && [ -x "$JAVA_HOME/bin/java" ]; then
+    JAVACMD="$JAVA_HOME/bin/java"
+else
+    JAVACMD=java
+fi
+
+if ! command -v "$JAVACMD" >/dev/null 2>&1; then
+    echo "error: java not found; set JAVA_HOME or install JDK 17" >&2
+    exit 1
+fi
+
+exec "$JAVACMD" ${GRADLE_OPTS:-} \
+    -Xmx64m -Xms64m \
+    "-Dorg.gradle.appname=karentunnel" \
+    -classpath "$CLASSPATH" \
+    org.gradle.wrapper.GradleWrapperMain "$@"
