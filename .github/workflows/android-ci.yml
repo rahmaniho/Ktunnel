@@ -85,6 +85,48 @@ jobs:
           ./gradlew assembleDebug --stacktrace 2>&1 | tee -a /tmp/gradle.log
           exit ${PIPESTATUS[0]}
 
+      # Counts are written to the branch because the reports artifact redirects to
+      # a storage host the development sandbox cannot reach, so the number of
+      # tests that actually ran would otherwise be unverifiable.
+      - name: Record test totals on the branch
+        if: always()
+        run: |
+          python3 - <<'PYEOF' > /tmp/totals.txt
+          import glob, xml.etree.ElementTree as ET
+          total = fails = skips = 0
+          per = {}
+          for f in glob.glob("**/build/test-results/**/*.xml", recursive=True):
+              try:
+                  r = ET.parse(f).getroot()
+              except Exception:
+                  continue
+              mod = f.split("test-results/")[1].split("/")[0] if "test-results/" in f else "?"
+              total += int(r.get("tests", 0))
+              fails += int(r.get("failures", 0)) + int(r.get("errors", 0))
+              skips += int(r.get("skipped", 0))
+              per[mod] = per.get(mod, 0) + int(r.get("tests", 0))
+          print(f"total={total} failures={fails} skipped={skips}")
+          for k in sorted(per):
+              print(f"{k}={per[k]}")
+          PYEOF
+          {
+            echo "run: $GITHUB_RUN_ID"
+            echo "commit: $GITHUB_SHA"
+            echo "date: $(date -u +%Y-%m-%dT%H:%M:%SZ)"
+            cat /tmp/totals.txt
+          } > ci/test-totals.txt
+          cat ci/test-totals.txt
+          git config user.name "android-ci"
+          git config user.email "android-ci@users.noreply.github.com"
+          git add ci/test-totals.txt
+          git commit -m "ci: record unit test totals for run $GITHUB_RUN_ID" || exit 0
+          for attempt in 1 2 3; do
+            git pull --rebase --autostash origin "$GITHUB_REF_NAME" || true
+            if git push origin "HEAD:$GITHUB_REF_NAME"; then exit 0; fi
+            sleep 5
+          done
+          true
+
       - name: Lint (release-blocking)
         run: |
           set +e
