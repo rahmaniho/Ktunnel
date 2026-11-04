@@ -126,13 +126,28 @@ jobs:
             echo '```'
           } > ci/last-failure.md
 
+          # This is the only observation channel available, so its failures must be
+          # loud. Previously the whole step reported "success" while committing
+          # nothing, and the previous run's log stayed on the branch as if it were
+          # current.
           git config user.name  "android-ci"
           git config user.email "android-ci@users.noreply.github.com"
           git add ci/last-failure.md
-          git commit -m "ci: record failing build output for run $GITHUB_RUN_ID" || exit 0
-          # The branch may have moved while the build ran; rebase and retry once.
-          git pull --rebase --autostash origin "$GITHUB_REF_NAME" || true
-          git push origin "HEAD:$GITHUB_REF_NAME" || true
+          if git diff --cached --quiet; then
+            echo "::error::diagnostics file is unchanged; the log may be empty"
+          fi
+          git commit -m "ci: record failing build output for run $GITHUB_RUN_ID"
+          # The branch may move while the build runs; retry the push a few times.
+          for attempt in 1 2 3; do
+            git pull --rebase --autostash origin "$GITHUB_REF_NAME" || true
+            if git push origin "HEAD:$GITHUB_REF_NAME"; then
+              echo "diagnostics published on attempt $attempt"
+              exit 0
+            fi
+            sleep 5
+          done
+          echo "::error::could not publish build diagnostics to the branch"
+          exit 1
 
       - name: Assemble debug APK
         run: |
@@ -201,8 +216,12 @@ jobs:
           git config user.email "android-ci@users.noreply.github.com"
           git add ci/wireguard-artifact-probe.md
           git commit -m "ci: record WireGuard artifact probe" || exit 0
-          git pull --rebase --autostash origin "$GITHUB_REF_NAME" || true
-          git push origin "HEAD:$GITHUB_REF_NAME" || true
+          for attempt in 1 2 3; do
+            git pull --rebase --autostash origin "$GITHUB_REF_NAME" || true
+            if git push origin "HEAD:$GITHUB_REF_NAME"; then exit 0; fi
+            sleep 5
+          done
+          true
 
   # Compiles every module that does not depend on the WireGuard library. This
   # isolates real Kotlin errors from artifact-resolution failures, so a single
@@ -274,9 +293,14 @@ jobs:
           git config user.name "android-ci"
           git config user.email "android-ci@users.noreply.github.com"
           git add ci/last-failure-nowg.md
-          git commit -m "ci: record compile-only failure for run $GITHUB_RUN_ID" || exit 0
-          git pull --rebase --autostash origin "$GITHUB_REF_NAME" || true
-          git push origin "HEAD:$GITHUB_REF_NAME" || true
+          git commit -m "ci: record compile-only failure for run $GITHUB_RUN_ID"
+          for attempt in 1 2 3; do
+            git pull --rebase --autostash origin "$GITHUB_REF_NAME" || true
+            if git push origin "HEAD:$GITHUB_REF_NAME"; then exit 0; fi
+            sleep 5
+          done
+          echo "::error::could not publish compile-only diagnostics"
+          exit 1
 
   # WireGuard's documentation defines the embedding API in terms of a Backend
   # interface, but the exact signatures decide whether our controller compiles.
