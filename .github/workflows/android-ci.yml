@@ -10,7 +10,7 @@ on:
   workflow_dispatch:
 
 permissions:
-  contents: read
+  contents: write
   # Needed to publish compiler/test diagnostics as a commit status, because
   # Actions log archives are not reachable from the development sandbox.
   statuses: write
@@ -79,32 +79,47 @@ jobs:
           fi
           exit "$status"
 
-      - name: Report failure details as a commit status
+      # Actions log archives and artifacts both redirect to a storage host that
+      # the development sandbox cannot reach, and commit statuses are not being
+      # delivered. So the compiler's own output is committed back to the branch:
+      # that makes it readable with a plain `git fetch`.
+      - name: Publish build diagnostics to the branch
         if: failure()
-        env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          grep -E '(^e: |error:|FAILED|Execution failed for task|Cause:)' /tmp/gradle.log 2>/dev/null | head -60 > errors.txt || true
-          # The sandbox this repo is developed in cannot download Actions logs,
-          # so the first actionable errors are surfaced in the commit status.
-          msg=$(grep -E '(^e: |error:|FAILED|Execution failed for task|Cause:)' /tmp/gradle.log 2>/dev/null | head -18 | tr '\n' ' ' | cut -c1-920)
-          [ -z "$msg" ] && msg="gradle failed before producing diagnostics; see artifacts/test-results"
-          gh api -X POST "repos/${GITHUB_REPOSITORY}/statuses/${GITHUB_SHA}" \
-            -f state=failure -f context=android-ci/errors -f description="$msg" >/dev/null || true
+          mkdir -p projects/karentunnel/ci
+          {
+            echo "# آخرین خروجی ناموفق CI"
+            echo
+            echo "- اجرا: $GITHUB_SERVER_URL/$GITHUB_REPOSITORY/actions/runs/$GITHUB_RUN_ID"
+            echo "- کامیت: \`$GITHUB_SHA\`"
+            echo "- زمان: $(date -u +%Y-%m-%dT%H:%M:%SZ)"
+            echo
+            echo '## خطاهای کامپایلر'
+            echo
+            echo '```'
+            grep -E '(^e: |^w: |error:|FAILED|Execution failed for task|Caused by:|What went wrong|Could not resolve|Could not find)' /tmp/gradle.log 2>/dev/null | head -200 || true
+            echo '```'
+            echo
+            echo '## ۱۲۰ خط آخر خروجی'
+            echo
+            echo '```'
+            tail -120 /tmp/gradle.log 2>/dev/null || true
+            echo '```'
+          } > projects/karentunnel/ci/last-failure.md
+
+          git config user.name  "android-ci"
+          git config user.email "android-ci@users.noreply.github.com"
+          git add projects/karentunnel/ci/last-failure.md
+          git commit -m "ci: record failing build output for run $GITHUB_RUN_ID" || exit 0
+          # The branch may have moved while the build ran; rebase and retry once.
+          git pull --rebase --autostash origin "$GITHUB_REF_NAME" || true
+          git push origin "HEAD:$GITHUB_REF_NAME" || true
 
       - name: Assemble debug APK
         run: |
           set +e
           ./gradlew assembleDebug --stacktrace 2>&1 | tee -a /tmp/gradle.log
-          status=${PIPESTATUS[0]}
-          if [ "$status" -ne 0 ]; then
-            msg=$(grep -E '(^e: |error:|FAILED|Execution failed for task)' /tmp/gradle.log | tail -18 | tr '\n' ' ' | cut -c1-920)
-            gh api -X POST "repos/${GITHUB_REPOSITORY}/statuses/${GITHUB_SHA}" \
-              -f state=failure -f context=android-ci/errors -f description="$msg" >/dev/null || true
-          fi
-          exit "$status"
-        env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          exit ${PIPESTATUS[0]}
 
       - name: Lint (release-blocking)
         run: ./gradlew lintDebug --stacktrace
