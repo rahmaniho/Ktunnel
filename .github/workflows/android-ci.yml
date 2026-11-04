@@ -4,9 +4,17 @@ on:
   push:
     # Any branch: agent work happens on arena/* branches and must be verified
     # before it reaches main, not after.
-    paths: ["projects/karentunnel/**"]
+    #
+    # The workflow file itself is included. It changes the build, so it has to
+    # rebuild: a fix that only touches this YAML previously produced no run at
+    # all, and a merge of such a fix never exercised it.
+    paths:
+      - "projects/karentunnel/**"
+      - ".github/workflows/android-ci.yml"
   pull_request:
-    paths: ["projects/karentunnel/**"]
+    paths:
+      - "projects/karentunnel/**"
+      - ".github/workflows/android-ci.yml"
   workflow_dispatch:
 
 permissions:
