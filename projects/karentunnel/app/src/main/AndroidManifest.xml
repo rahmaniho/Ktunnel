@@ -6,11 +6,10 @@
     <!-- ACCESS_NETWORK_STATE is declared by :vpn, which owns NetworkMonitor. -->
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
     <!--
-      systemExempted is the FGS type the platform documents for VPN apps
-      (Settings > Network & Internet > VPN). See docs/TECHNICAL-FEASIBILITY.md F2
-      and the fallback plan in docs/KNOWN-LIMITATIONS.md.
+      Paired with foregroundServiceType="specialUse"; see the service element for
+      why systemExempted was rejected. See docs/TECHNICAL-FEASIBILITY.md F2.
     -->
-    <uses-permission android:name="android.permission.FOREGROUND_SERVICE_SYSTEM_EXEMPTED" />
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE_SPECIAL_USE" />
     <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
     <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
 
@@ -55,10 +54,30 @@
           library's VpnService (declared by its own manifest).
           exported=false: only this app may start it.
         -->
+        <!--
+          specialUse, not systemExempted.
+
+          Android documents systemExempted as also covering "VPN apps (configured
+          using Settings > Network & Internet > VPN)", and for that configuration
+          it is the natural fit. But the same page states that any app which does
+          not meet one of the listed criteria and still declares it "causes the
+          system to throw ForegroundServiceTypeNotAllowedException" — and the
+          documented VPN route has no public API that an app can use to prove it
+          was configured that way. A side-loaded personal VPN would therefore risk
+          crashing when connecting.
+
+          specialUse is the documented bucket for valid cases the other types do
+          not cover, and it has no runtime prerequisites. The subtype property
+          below is what a reviewer (and the user) sees as the justification.
+        -->
         <service
             android:name=".service.TunnelForegroundService"
             android:exported="false"
-            android:foregroundServiceType="systemExempted" />
+            android:foregroundServiceType="specialUse">
+            <property
+                android:name="android.app.PROPERTY_SPECIAL_USE_FGS_SUBTYPE"
+                android:value="Keeps the user's VPN tunnel connected while the app is in the background, which is the only way an Android VpnService can stay up." />
+        </service>
 
         <!-- Restore after reboot only when the user opted in. -->
         <receiver

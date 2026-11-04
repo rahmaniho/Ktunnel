@@ -64,11 +64,12 @@ class TunnelForegroundService : Service() {
     private fun startInForeground(state: NotificationState) {
         val notification = buildNotification(state)
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
-            // Android 14+ requires an explicit type at start time.
+            // Android 14+ requires an explicit type at start time, and it must
+            // match android:foregroundServiceType in the manifest.
             startForeground(
                 NOTIFICATION_ID,
                 notification,
-                ServiceInfo.FOREGROUND_SERVICE_TYPE_SYSTEM_EXEMPTED,
+                ServiceInfo.FOREGROUND_SERVICE_TYPE_SPECIAL_USE,
             )
         } else {
             startForeground(NOTIFICATION_ID, notification)

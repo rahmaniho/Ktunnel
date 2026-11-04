@@ -119,14 +119,18 @@ if (!(sawDefaultRoute && config.getPeers().size() == 1)) {
 
 **تصمیم:**
 
-- `KarenTunnel` یک FGS **اختصاصی** می‌سازد (`TunnelForegroundService`) که
-  `foregroundServiceType="systemExempted"` دارد. مستند رسمی، «اپ‌های VPN
-  (پیکربندی‌شده در Settings > Network & Internet > VPN)» را واجد این type
-  می‌داند (`developer.android.com/.../fgs/service-types` → System exempted).
-- **ریسک باقی‌مانده:** این واجد بودن در دستگاه واقعی تأیید نشده؛ اگر
-  `ForegroundServiceTypeNotAllowedException` پرتاب شد، طرح جایگزین:
-  `specialUse` با توضیح ثبت‌شده، یا تکیه بر always-on. در `KNOWN-LIMITATIONS`
-  و `TEST-PLAN` (مورد T-24) ثبت می‌شود.
+- `KarenTunnel` یک FGS **اختصاصی** می‌سازد (`TunnelForegroundService`) با
+  `foregroundServiceType="specialUse"`.
+- **چرا نه `systemExempted`:** مستند رسمی «اپ‌های VPN پیکربندی‌شده در
+  Settings» را واجد `systemExempted` می‌داند، اما همان صفحه تصریح می‌کند اپی که
+  شرط‌ها را نداشته باشد و این type را اعلام کند
+  `ForegroundServiceTypeNotAllowedException` می‌گیرد. هیچ API عمومی‌ای وجود
+  ندارد که اپ با آن اثبات کند «در Settings پیکربندی شده است». اعلام یک type که
+  ممکن است در زمان اجرا رد شود، با اصل «ادعا فقط با اثبات» سازگار نیست.
+- `specialUse` هیچ پیش‌نیاز زمان‌اجرایی ندارد و برای همین دسته ساخته شده است؛
+  دلیل استفاده با `<property ... PROPERTY_SPECIAL_USE_FGS_SUBTYPE>` ثبت می‌شود.
+- **هزینهٔ پذیرفته‌شده:** بازبینی Play Console در صورت انتشار عمومی. جزئیات در
+  `KNOWN-LIMITATIONS` §۲ و آزمون T-24 در `TEST-PLAN`.
 - **نکتهٔ معماری مهم:** `GoBackend` خودش `context.startService(new Intent(...,
   VpnService.class))` صدا می‌زند و FGS ما باید هم‌زمان بالا باشد؛ ترتیب
   «FGS اول، سپس `setState(UP)`» اجباری است.
@@ -403,7 +407,7 @@ sealed interface Diagnosis {
 
 | # | ریسک | اثر | احتمال | کاهش |
 | --- | --- | --- | --- | --- |
-| R1 | `systemExempted` روی دستگاه واقعی رد شود | FGS شروع نشود | متوسط | تست T-24؛ جایگزین `specialUse`؛ راهنمای always-on |
+| R1 | FGS با `specialUse` روی دستگاه واقعی پذیرفته نشود | FGS شروع نشود | کم | تست T-24؛ `specialUse` پیش‌نیاز زمان‌اجرایی ندارد؛ راهنمای always-on |
 | R2 | Doze ترافیک را متوقف کند ولی state=UP | **ادعای دروغین اتصال** | زیاد در ایران | تشخیص handshake کهنه → `CONNECTED_DEGRADED` |
 | R3 | نشتی IPv6 به‌خاطر F1 | نقض حریم خصوصی | زیاد اگر نادیده گرفته شود | سه لایهٔ §۵٫۲ + تست رگرسیون |
 | R4 | نبود JDK/SDK/Maven در محیط ساخت | نتوانم APK بسازم | **قطعیت** | CI با GitHub Actions؛ APK فقط از artifact سبز |
@@ -446,7 +450,7 @@ github.com / api.github.com                         : در دسترس
 | ADR | تصمیم | جایگزین ردشده |
 | --- | --- | --- |
 | ADR-001 | کتابخانهٔ رسمی WireGuard، بدون لمس رمزنگاری | پیاده‌سازی userspace مستقل |
-| ADR-002 | `VpnService` + یک FGS اختصاصی با `systemExempted` | تکیه بر کتابخانه (F2) |
+| ADR-002 | `VpnService` + یک FGS اختصاصی با `specialUse` | تکیه بر کتابخانه (F2) |
 | ADR-003 | `CONNECTED` فقط با اثبات سه‌گانه (F3) | اعتماد به `getState()` |
 | ADR-004 | حذف IPv6 در سطح پیکربندی | اتکا به `allowFamily` (F1) |
 | ADR-005 | Keystore + AES-GCM دستی | `security-crypto` (منسوخ) |
@@ -464,7 +468,7 @@ github.com / api.github.com                         : در دسترس
 - [x] محدودیت محیط ساخت صریح اعلام شد.
 - [ ] **تأیید صاحب محصول** روی سه تصمیم زیر:
   - minSdk 26 / targetSdk 35
-  - FGS با `systemExempted` (با جایگزین `specialUse`)
+  - FGS با `specialUse`
   - حذف IPv6 در پیکربندی‌های IPv4-only (سخت‌گیرانه، ممکن است برخی سرورها را رد کند)
 
 پس از تأیید، فاز ۲ (اسکلت اپ و رابط فارسی) بدون تغییر معماری آغاز می‌شود.
@@ -477,7 +481,7 @@ github.com / api.github.com                         : در دسترس
 | --- | --- |
 | `developer.android.com/develop/connectivity/vpn` | چرخهٔ `prepare`/`establish`/`onRevoke`، always-on، per-app |
 | `developer.android.com/reference/android/net/VpnService.Builder` | `addAddress`, `addRoute`, `allowFamily`, `setUnderlyingNetworks`, `setBlocking` |
-| `developer.android.com/develop/background-work/services/fgs/service-types` | الزام type از API 34؛ `systemExempted` برای اپ VPN |
+| `developer.android.com/develop/background-work/services/fgs/service-types` | الزام type از API 34؛ `systemExempted` شرط‌دار و می‌تواند در زمان اجرا رد شود؛ `specialUse` بدون پیش‌نیاز |
 | `github.com/WireGuard/wireguard-android` @ `1.0.20260315` | کد منبع `GoBackend`, `Tunnel`, `Config`, `Statistics` |
 | `wireguard.com/embedding/` | روش رسمی جاسازی: `com.wireguard.android:tunnel` |
 | README رسمی wireguard-android | الزام desugaring و `com.wireguard.android:tunnel:VERSION` |
