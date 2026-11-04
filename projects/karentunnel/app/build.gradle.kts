@@ -1,3 +1,5 @@
+import java.util.Properties
+
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
@@ -12,9 +14,9 @@ plugins {
 // there is no debug-key fallback, because a release artifact signed with a debug
 // key would look distributable while being untrusted.
 val keystorePropertiesFile = rootProject.file("keystore.properties")
-val keystoreProperties = java.util.Properties().apply {
+val keystoreProperties = Properties().apply {
     if (keystorePropertiesFile.exists()) {
-        keystorePropertiesFile.inputStream().use { load(it) }
+        keystorePropertiesFile.inputStream().use { stream -> load(stream) }
     }
 }
 
