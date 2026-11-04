@@ -1,11 +1,11 @@
 # WireGuard artifact availability
 
-- date: 2026-11-04T09:24:13Z
+- date: 2026-11-04T09:25:51Z
 
 ## 1. Maven Central search API (group = com.wireguard.android)
 
 ```json
-{"responseHeader":{"status":0,"QTime":0,"params":{"q":"g:\"com.wireguard.android\"","core":"","indent":"off","spellcheck":"true","fl":"id,g,a,latestVersion,p,ec,repositoryId,text,timestamp,versionCount","start":"","spellcheck.count":"5","sort":"score desc,timestamp desc,g asc,a asc","rows":"40","wt":"json","version":"2.2"}},"response":{"numFound":1,"start":0,"docs":[{"id":"com.wireguard.android:tunnel","g":"com.wireguard.android","a":"tunnel","latestVersion":"1.0.20230706","repositoryId":"central","p":"aar","timestamp":1688667191000,"versionCount":7,"text":["com.wireguard.android","tunnel","-sources.jar.sha256","-javadoc.jar",".aar.sha256",".aar.sha512","-javadoc.jar.sha512",".module.asc.sha256",".module.asc.sha512",".aar.asc.sha512","-javadoc.jar.sha256","-sources.jar",".pom.sha512",".module","-sources.jar.asc.sha512",".aar",".module.sha256",".aar.asc.sha256",".pom","-sources.jar.asc.sha256",".module.sha512","-javadoc.jar.asc.sha256",".pom.asc.sha256","-javadoc.jar.asc.sha512",".pom.asc.sha512","-sources.jar.sha512",".pom.sha256"],"ec":["-sources.jar.sha256","-javadoc.jar",".aar.sha256",".aar.sha512","-javadoc.jar.sha512",".module.asc.sha256",".module.asc.sha512",".aar.asc.sha512","-javadoc.jar.sha256","-sources.jar",".pom.sha512",".module","-sources.jar.asc.sha512",".aar",".module.sha256",".aar.asc.sha256",".pom","-sources.jar.asc.sha256",".module.sha512","-javadoc.jar.asc.sha256",".pom.asc.sha256","-javadoc.jar.asc.sha512",".pom.asc.sha512","-sources.jar.sha512",".pom.sha256"]}]},"spellcheck":{"suggestions":[]}}
+{"responseHeader":{"status":0,"QTime":1,"params":{"q":"g:\"com.wireguard.android\"","core":"","indent":"off","spellcheck":"true","fl":"id,g,a,latestVersion,p,ec,repositoryId,text,timestamp,versionCount","start":"","spellcheck.count":"5","sort":"score desc,timestamp desc,g asc,a asc","rows":"40","wt":"json","version":"2.2"}},"response":{"numFound":1,"start":0,"docs":[{"id":"com.wireguard.android:tunnel","g":"com.wireguard.android","a":"tunnel","latestVersion":"1.0.20230706","repositoryId":"central","p":"aar","timestamp":1688667191000,"versionCount":7,"text":["com.wireguard.android","tunnel","-sources.jar.sha256","-javadoc.jar",".aar.sha256",".aar.sha512","-javadoc.jar.sha512",".module.asc.sha256",".module.asc.sha512",".aar.asc.sha512","-javadoc.jar.sha256","-sources.jar",".pom.sha512",".module","-sources.jar.asc.sha512",".aar",".module.sha256",".aar.asc.sha256",".pom","-sources.jar.asc.sha256",".module.sha512","-javadoc.jar.asc.sha256",".pom.asc.sha256","-javadoc.jar.asc.sha512",".pom.asc.sha512","-sources.jar.sha512",".pom.sha256"],"ec":["-sources.jar.sha256","-javadoc.jar",".aar.sha256",".aar.sha512","-javadoc.jar.sha512",".module.asc.sha256",".module.asc.sha512",".aar.asc.sha512","-javadoc.jar.sha256","-sources.jar",".pom.sha512",".module","-sources.jar.asc.sha512",".aar",".module.sha256",".aar.asc.sha256",".pom","-sources.jar.asc.sha256",".module.sha512","-javadoc.jar.asc.sha256",".pom.asc.sha256","-javadoc.jar.asc.sha512",".pom.asc.sha512","-sources.jar.sha512",".pom.sha256"]}]},"spellcheck":{"suggestions":[]}}
 ```
 
 ## 2. Maven Central search API (name/artifact = tunnel, any group)
@@ -52,5 +52,5 @@
 
 ## 5. Can Gradle resolve it in this exact project?
 
-BUILD FAILED in 40s
-no wireguard lines found in dependency report
+|    +--- com.wireguard.android:tunnel:1.0.20260102
+\--- com.wireguard.android:tunnel:1.0.20260102 (*)
