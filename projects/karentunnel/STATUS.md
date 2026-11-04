@@ -2,12 +2,13 @@
 
 # وضعیت KarenTunnel
 
-> به‌روزرسانی: ۲۰۲۶-۱۱-۰۴ · شاخه: `arena/1b755a6e-ktunnel`
+> به‌روزرسانی: ۲۰۲۶-۱۱-۰۴ · شاخه: `arena/d888ab1b-ktunnel`
 
 ```yaml
-phase: implementation
-status: build-green, device-unverified
-last_green_run: 41807391493
+phase: shipped-build
+status: apk-published, device-unverified
+apk_release: build-20261104-7dada79
+last_green_run: 41839593918
 unit_tests: 68 passed / 0 failed
 apk_debug_bytes: 28817797   # اندازهٔ واقعی APK در release
 apk_release_bytes: 11965302  # اندازهٔ واقعی APK در release
