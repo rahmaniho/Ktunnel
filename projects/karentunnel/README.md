@@ -47,16 +47,31 @@
 
 ## نصب
 
-### از APK
+هر بیلد موفق روی `main` یک **[release](../../releases)** منتشر می‌کند:
+
+| فایل | برای چه |
+| --- | --- |
+| `karentunnel-debug.apk` | نصب روی دستگاه شخصی |
+| `karentunnel-release-ci-signed.apk` | بیلد release (R8)، برای آزمودن |
+| `BUILD-INFO.txt` | کامیت، شمارهٔ اجرا و sha256 هر دو فایل |
 
 ```bash
-# از artifact اجرای CI دانلود کنید:
-# karentunnel-debug-apk  (یا karentunnel-release-apk-ci-signed)
+# دانلود از صفحهٔ releases، سپس:
 adb install -r karentunnel-debug.apk
 ```
 
-> ⚠️ APK دیباگ با کلید debug اندروید امضا شده. artifact release با کلید
-> **موقت CI** امضا می‌شود. هیچ‌کدام برای توزیع عمومی مناسب نیستند.
+برای اطمینان از اینکه فایل سالم و مربوط به همان بیلد است:
+
+```bash
+sha256sum -c <(grep -oE '[a-f0-9]{64}  karentunnel[^ ]*' BUILD-INFO.txt)
+```
+
+> ⚠️ APK دیباگ با کلید debug اندروید امضا شده. release با کلید **موقت CI**
+> امضا می‌شود که هر بیلد دوباره ساخته می‌شود. هیچ‌کدام برای توزیع عمومی مناسب
+> نیستند و هیچ‌کدام روی دستگاه آزمون نشده‌اند.
+
+> ℹ️ پیش از نصب باید «نصب از منابع نامشخص» برای فایلی که APK را باز می‌کند
+> فعال باشد.
 
 ### از سورس
 
