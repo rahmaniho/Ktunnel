@@ -1,16 +1,14 @@
 # آخرین خروجی ناموفق CI
 
-- اجرا: https://github.com/rahmaniho/Ktunnel/actions/runs/41761123889
-- کامیت: `a926b631541f51a60da447fb28f136cfbcfa522b`
-- زمان: 2026-11-04T02:38:22Z
+- اجرا: https://github.com/rahmaniho/Ktunnel/actions/runs/41762203584
+- کامیت: `439b3083e694cd3af8afa1078e59f8b9a99783a3`
+- زمان: 2026-11-04T02:46:19Z
 
 ## خطاهای کامپایلر
 
 ```
-ConnectionManagerTest > missing system vpn network prevents connected FAILED
-ConnectionManagerTest > stale handshake is degraded FAILED
+ConnectionManagerTest > health loop demotes a connected tunnel when the handshake goes stale FAILED
 ConnectionManagerTest > becomes connected only when all evidence is present FAILED
-ConnectionManagerTest > tunnel up without handshake is degraded not connected FAILED
 ConnectionManagerTest > external teardown disconnects safely FAILED
 ConnectionManagerTest > disconnect tears the tunnel down and clears state FAILED
 ConnectionManagerTest > double connect does not start two tunnels FAILED
@@ -19,7 +17,81 @@ ConnectionManagerTest > double connect does not start two tunnels FAILED
 Execution failed for task ':vpn:testDebugUnitTest'.
 org.gradle.api.tasks.TaskExecutionException: Execution failed for task ':vpn:testDebugUnitTest'.
 Caused by: org.gradle.api.internal.exceptions.MarkedVerificationException: There were failing tests. See the report at: file:///home/runner/work/Ktunnel/Ktunnel/projects/karentunnel/vpn/build/reports/tests/testDebugUnitTest/index.html
-BUILD FAILED in 8m 4s
+BUILD FAILED in 6m 7s
+```
+
+## تست‌های ناموفق
+
+```
+<testcase name="round trip preserves every field" classname="ir.karensoft.karentunnel.data.secure.FileSecureConfigStoreTest"
+<testcase name="file on disk does not contain the private key" classname="ir.karensoft.karentunnel.data.secure.FileSecureConfigStoreTest"
+<testcase name="load of missing config fails cleanly" classname="ir.karensoft.karentunnel.data.secure.FileSecureConfigStoreTest"
+<testcase name="list returns saved ids sorted" classname="ir.karensoft.karentunnel.data.secure.FileSecureConfigStoreTest"
+<testcase name="tampered file is reported as failure not garbage" classname="ir.karensoft.karentunnel.data.secure.FileSecureConfigStoreTest"
+<testcase name="delete removes the config" classname="ir.karensoft.karentunnel.data.secure.FileSecureConfigStoreTest"
+<testcase name="server id with path characters cannot escape the directory" classname="ir.karensoft.karentunnel.data.secure.FileSecureConfigStoreTest"
+<testcase name="wipeAll removes every config" classname="ir.karensoft.karentunnel.data.secure.FileSecureConfigStoreTest"
+<testcase name="failed save does not leave a temp file behind" classname="ir.karensoft.karentunnel.data.secure.FileSecureConfigStoreTest"
+<testcase name="port out of range is refused" classname="ir.karensoft.karentunnel.core.model.ConfigNormalizerTest"
+<testcase name="malformed private key is refused" classname="ir.karensoft.karentunnel.core.model.ConfigNormalizerTest"
+<testcase name="canonical base64 key of 32 bytes is accepted" classname="ir.karensoft.karentunnel.core.model.ConfigNormalizerTest"
+<testcase name="non-literal dns entry is refused" classname="ir.karensoft.karentunnel.core.model.ConfigNormalizerTest"
+<testcase name="keys with invalid characters are rejected" classname="ir.karensoft.karentunnel.core.model.ConfigNormalizerTest"
+<testcase name="ipv6 only dns is refused when ipv6 cannot be tunneled" classname="ir.karensoft.karentunnel.core.model.ConfigNormalizerTest"
+<testcase name="key equal to peer key is refused" classname="ir.karensoft.karentunnel.core.model.ConfigNormalizerTest"
+<testcase name="secret is redacted in toString" classname="ir.karensoft.karentunnel.core.model.ConfigNormalizerTest"
+<testcase name="mtu outside range is refused" classname="ir.karensoft.karentunnel.core.model.ConfigNormalizerTest"
+<testcase name="dual stack config tunnels IPv6" classname="ir.karensoft.karentunnel.core.model.ConfigNormalizerTest"
+<testcase name="ipv4 only config excludes IPv6" classname="ir.karensoft.karentunnel.core.model.ConfigNormalizerTest"
+<testcase name="keys with wrong length are rejected" classname="ir.karensoft.karentunnel.core.model.ConfigNormalizerTest"
+<testcase name="missing dns is refused" classname="ir.karensoft.karentunnel.core.model.ConfigNormalizerTest"
+<testcase name="endpoint without port is refused" classname="ir.karensoft.karentunnel.core.model.ConfigNormalizerTest"
+<testcase name="ipv6 literal endpoint is parsed" classname="ir.karensoft.karentunnel.core.model.ConfigNormalizerTest"
+<testcase name="ipv6 interface address without default route is refused" classname="ir.karensoft.karentunnel.core.model.ConfigNormalizerTest"
+<testcase name="default mtu is applied" classname="ir.karensoft.karentunnel.core.model.ConfigNormalizerTest"
+<testcase name="blank dns entries do not count as dns" classname="ir.karensoft.karentunnel.core.model.ConfigNormalizerTest"
+<testcase name="never produces TUNNELED without a v6 default route" classname="ir.karensoft.karentunnel.core.model.ConfigNormalizerTest"
+<testcase name="too many dns servers is refused" classname="ir.karensoft.karentunnel.core.model.ConfigNormalizerTest"
+<testcase name="ipv6 entries are stripped when policy is excluded" classname="ir.karensoft.karentunnel.core.model.ConfigNormalizerTest"
+<testcase name="can always disconnect from any state" classname="ir.karensoft.karentunnel.core.connection.ConnectionStateMachineTest"
+<testcase name="retry stops at max attempts" classname="ir.karensoft.karentunnel.core.connection.ConnectionStateMachineTest"
+<testcase name="backoff grows and is capped" classname="ir.karensoft.karentunnel.core.connection.ConnectionStateMachineTest"
+<testcase name="no connection without system vpn network" classname="ir.karensoft.karentunnel.core.connection.ConnectionStateMachineTest"
+<testcase name="no connection without a handshake" classname="ir.karensoft.karentunnel.core.connection.ConnectionStateMachineTest"
+<testcase name="failure never maps to connected" classname="ir.karensoft.karentunnel.core.connection.ConnectionStateMachineTest"
+<testcase name="jitter stays within bounds" classname="ir.karensoft.karentunnel.core.connection.ConnectionStateMachineTest"
+<testcase name="connected requires all three proofs" classname="ir.karensoft.karentunnel.core.connection.ConnectionStateMachineTest"
+<testcase name="no connection when handshake is stale" classname="ir.karensoft.karentunnel.core.connection.ConnectionStateMachineTest"
+<testcase name="no network is not retried until the network returns" classname="ir.karensoft.karentunnel.core.connection.ConnectionStateMachineTest"
+<testcase name="attempt cap cannot be configured into an infinite loop" classname="ir.karensoft.karentunnel.core.connection.ConnectionStateMachineTest"
+<testcase name="cannot jump from disconnected straight to connected" classname="ir.karensoft.karentunnel.core.connection.ConnectionStateMachineTest"
+<testcase name="degraded is treated as protected but is not success" classname="ir.karensoft.karentunnel.core.connection.ConnectionStateMachineTest"
+<testcase name="degraded reason distinguishes missing from stale handshake" classname="ir.karensoft.karentunnel.core.connection.ConnectionStateMachineTest"
+<testcase name="no connection without backend up" classname="ir.karensoft.karentunnel.core.connection.ConnectionStateMachineTest"
+<testcase name="permission errors are never retried automatically" classname="ir.karensoft.karentunnel.core.connection.ConnectionStateMachineTest"
+<testcase name="dns failure with dead tcp stays unknown" classname="ir.karensoft.karentunnel.diagnostics.ProbeEngineTest"
+<testcase name="healthy probes never produce a filtering claim" classname="ir.karensoft.karentunnel.diagnostics.ProbeEngineTest"
+<testcase name="dns failure alone is only probable" classname="ir.karensoft.karentunnel.diagnostics.ProbeEngineTest"
+<testcase name="report headline never says filtering confirmed" classname="ir.karensoft.karentunnel.diagnostics.ProbeEngineTest"
+<testcase name="run uses injected probes and records evidence" classname="ir.karensoft.karentunnel.diagnostics.ProbeEngineTest"
+<testcase name="unreachable endpoint is probable with low confidence" classname="ir.karensoft.karentunnel.diagnostics.ProbeEngineTest"
+<testcase name="permission failure goes terminal without retry" classname="ir.karensoft.karentunnel.vpn.connection.ConnectionManagerTest"
+<testcase name="missing system vpn network prevents connected" classname="ir.karensoft.karentunnel.vpn.connection.ConnectionManagerTest"
+<testcase name="stale handshake is degraded" classname="ir.karensoft.karentunnel.vpn.connection.ConnectionManagerTest"
+<testcase name="health loop demotes a connected tunnel when the handshake goes stale" classname="ir.karensoft.karentunnel.vpn.connection.ConnectionManagerTest"
+<testcase name="becomes connected only when all evidence is present" classname="ir.karensoft.karentunnel.vpn.connection.ConnectionManagerTest"
+<testcase name="transient failure retries a bounded number of times" classname="ir.karensoft.karentunnel.vpn.connection.ConnectionManagerTest"
+<testcase name="tunnel up without handshake is degraded not connected" classname="ir.karensoft.karentunnel.vpn.connection.ConnectionManagerTest"
+<testcase name="external teardown disconnects safely" classname="ir.karensoft.karentunnel.vpn.connection.ConnectionManagerTest"
+
+--- failure messages ---
+message="kotlinx.coroutines.test.UncompletedCoroutinesError: After waiting for 1m, the test body did not run to completion"
+message="kotlinx.coroutines.test.UncompletedCoroutinesError: After waiting for 1m, the test body did not run to completion"
+message="kotlinx.coroutines.test.UncompletedCoroutinesError: After waiting for 1m, the test body did not run to completion"
+message="kotlinx.coroutines.test.UncompletedCoroutinesError: After waiting for 1m, the test body did not run to completion"
+message="kotlinx.coroutines.test.UncompletedCoroutinesError: After waiting for 1m, the test body did not run to completion"
+
+--- stdout / assertion traces ---
 ```
 
 ## ۱۲۰ خط آخر خروجی
@@ -143,6 +215,6 @@ BUILD FAILED in 8m 4s
 	at org.gradle.internal.concurrent.AbstractManagedExecutor$1.run(AbstractManagedExecutor.java:48)
 
 
-BUILD FAILED in 8m 4s
-103 actionable tasks: 82 executed, 21 from cache
+BUILD FAILED in 6m 7s
+103 actionable tasks: 83 executed, 20 from cache
 ```
