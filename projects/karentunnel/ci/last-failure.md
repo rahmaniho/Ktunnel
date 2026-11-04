@@ -1,52 +1,55 @@
 # آخرین خروجی ناموفق CI
 
-- اجرا: https://github.com/rahmaniho/Ktunnel/actions/runs/41760140254
-- کامیت: `faaa7412085f31ef448b651dc77068c165bb0c6d`
-- زمان: 2026-11-04T02:22:08Z
+- اجرا: https://github.com/rahmaniho/Ktunnel/actions/runs/41760453710
+- کامیت: `784d024d55a4cfc9af5b1a46b574ed7488afbe2d`
+- زمان: 2026-11-04T02:25:01Z
 
 ## خطاهای کامپایلر
 
 ```
-e: file:///home/runner/work/Ktunnel/Ktunnel/projects/karentunnel/core/src/test/kotlin/ir/karensoft/karentunnel/core/model/ConfigNormalizerTest.kt:5:43 Unresolved reference 'TestConfigs'.
-e: file:///home/runner/work/Ktunnel/Ktunnel/projects/karentunnel/core/src/test/kotlin/ir/karensoft/karentunnel/core/model/ConfigNormalizerTest.kt:18:49 Unresolved reference 'TestConfigs'.
-e: file:///home/runner/work/Ktunnel/Ktunnel/projects/karentunnel/core/src/test/kotlin/ir/karensoft/karentunnel/core/model/ConfigNormalizerTest.kt:29:49 Unresolved reference 'TestConfigs'.
-e: file:///home/runner/work/Ktunnel/Ktunnel/projects/karentunnel/core/src/test/kotlin/ir/karensoft/karentunnel/core/model/ConfigNormalizerTest.kt:40:19 Unresolved reference 'TestConfigs'.
-e: file:///home/runner/work/Ktunnel/Ktunnel/projects/karentunnel/core/src/test/kotlin/ir/karensoft/karentunnel/core/model/ConfigNormalizerTest.kt:56:19 Unresolved reference 'TestConfigs'.
-e: file:///home/runner/work/Ktunnel/Ktunnel/projects/karentunnel/core/src/test/kotlin/ir/karensoft/karentunnel/core/model/ConfigNormalizerTest.kt:67:19 Unresolved reference 'TestConfigs'.
-e: file:///home/runner/work/Ktunnel/Ktunnel/projects/karentunnel/core/src/test/kotlin/ir/karensoft/karentunnel/core/model/ConfigNormalizerTest.kt:75:19 Unresolved reference 'TestConfigs'.
-e: file:///home/runner/work/Ktunnel/Ktunnel/projects/karentunnel/core/src/test/kotlin/ir/karensoft/karentunnel/core/model/ConfigNormalizerTest.kt:89:19 Unresolved reference 'TestConfigs'.
-e: file:///home/runner/work/Ktunnel/Ktunnel/projects/karentunnel/core/src/test/kotlin/ir/karensoft/karentunnel/core/model/ConfigNormalizerTest.kt:89:63 Cannot infer type for this parameter. Specify it explicitly.
-e: file:///home/runner/work/Ktunnel/Ktunnel/projects/karentunnel/core/src/test/kotlin/ir/karensoft/karentunnel/core/model/ConfigNormalizerTest.kt:96:19 Unresolved reference 'TestConfigs'.
-e: file:///home/runner/work/Ktunnel/Ktunnel/projects/karentunnel/core/src/test/kotlin/ir/karensoft/karentunnel/core/model/ConfigNormalizerTest.kt:103:19 Unresolved reference 'TestConfigs'.
-e: file:///home/runner/work/Ktunnel/Ktunnel/projects/karentunnel/core/src/test/kotlin/ir/karensoft/karentunnel/core/model/ConfigNormalizerTest.kt:110:19 Unresolved reference 'TestConfigs'.
-e: file:///home/runner/work/Ktunnel/Ktunnel/projects/karentunnel/core/src/test/kotlin/ir/karensoft/karentunnel/core/model/ConfigNormalizerTest.kt:121:19 Unresolved reference 'TestConfigs'.
-e: file:///home/runner/work/Ktunnel/Ktunnel/projects/karentunnel/core/src/test/kotlin/ir/karensoft/karentunnel/core/model/ConfigNormalizerTest.kt:121:45 Cannot infer type for this parameter. Specify it explicitly.
-e: file:///home/runner/work/Ktunnel/Ktunnel/projects/karentunnel/core/src/test/kotlin/ir/karensoft/karentunnel/core/model/ConfigNormalizerTest.kt:121:49 Cannot infer type for this parameter. Specify it explicitly.
-e: file:///home/runner/work/Ktunnel/Ktunnel/projects/karentunnel/core/src/test/kotlin/ir/karensoft/karentunnel/core/model/ConfigNormalizerTest.kt:121:54 Unresolved reference 'copy'.
-e: file:///home/runner/work/Ktunnel/Ktunnel/projects/karentunnel/core/src/test/kotlin/ir/karensoft/karentunnel/core/model/ConfigNormalizerTest.kt:121:78 Unresolved reference 'privateKey'.
-e: file:///home/runner/work/Ktunnel/Ktunnel/projects/karentunnel/core/src/test/kotlin/ir/karensoft/karentunnel/core/model/ConfigNormalizerTest.kt:128:19 Unresolved reference 'TestConfigs'.
-e: file:///home/runner/work/Ktunnel/Ktunnel/projects/karentunnel/core/src/test/kotlin/ir/karensoft/karentunnel/core/model/ConfigNormalizerTest.kt:135:49 Unresolved reference 'TestConfigs'.
-e: file:///home/runner/work/Ktunnel/Ktunnel/projects/karentunnel/core/src/test/kotlin/ir/karensoft/karentunnel/core/model/ConfigNormalizerTest.kt:136:54 Unresolved reference 'TestConfigs'.
-e: file:///home/runner/work/Ktunnel/Ktunnel/projects/karentunnel/core/src/test/kotlin/ir/karensoft/karentunnel/core/model/ConfigNormalizerTest.kt:138:55 Unresolved reference 'TestConfigs'.
-e: file:///home/runner/work/Ktunnel/Ktunnel/projects/karentunnel/core/src/test/kotlin/ir/karensoft/karentunnel/core/model/ConfigNormalizerTest.kt:145:19 Unresolved reference 'TestConfigs'.
-e: file:///home/runner/work/Ktunnel/Ktunnel/projects/karentunnel/core/src/test/kotlin/ir/karensoft/karentunnel/core/model/ConfigNormalizerTest.kt:152:19 Unresolved reference 'TestConfigs'.
-e: file:///home/runner/work/Ktunnel/Ktunnel/projects/karentunnel/core/src/test/kotlin/ir/karensoft/karentunnel/core/model/ConfigNormalizerTest.kt:166:19 Unresolved reference 'TestConfigs'.
-e: file:///home/runner/work/Ktunnel/Ktunnel/projects/karentunnel/core/src/test/kotlin/ir/karensoft/karentunnel/core/model/ConfigNormalizerTest.kt:173:49 Unresolved reference 'TestConfigs'.
-e: file:///home/runner/work/Ktunnel/Ktunnel/projects/karentunnel/core/src/test/kotlin/ir/karensoft/karentunnel/core/model/ConfigNormalizerTest.kt:181:57 Unresolved reference 'TestConfigs'.
-e: file:///home/runner/work/Ktunnel/Ktunnel/projects/karentunnel/core/src/test/kotlin/ir/karensoft/karentunnel/core/model/ConfigNormalizerTest.kt:187:57 Unresolved reference 'TestConfigs'.
-e: file:///home/runner/work/Ktunnel/Ktunnel/projects/karentunnel/core/src/test/kotlin/ir/karensoft/karentunnel/core/model/ConfigNormalizerTest.kt:192:57 Unresolved reference 'TestConfigs'.
+e: warnings found and -Werror specified
+w: file:///home/runner/work/Ktunnel/Ktunnel/projects/karentunnel/core/src/test/kotlin/ir/karensoft/karentunnel/core/connection/ConnectionStateMachineTest.kt:67:20 Check for instance is always 'false'.
 > Task :core:compileDebugUnitTestKotlin FAILED
 * What went wrong:
 Execution failed for task ':core:compileDebugUnitTestKotlin'.
 org.gradle.api.tasks.TaskExecutionException: Execution failed for task ':core:compileDebugUnitTestKotlin'.
 Caused by: org.gradle.workers.internal.DefaultWorkerExecutor$WorkExecutionException: A failure occurred while executing org.jetbrains.kotlin.compilerRunner.GradleCompilerRunnerWithWorkers$GradleKotlinCompilerWorkAction
 Caused by: org.jetbrains.kotlin.gradle.tasks.CompilationErrorException: Compilation error. See log for more details
-BUILD FAILED in 51s
+BUILD FAILED in 50s
 ```
 
 ## ۱۲۰ خط آخر خروجی
 
 ```
+	at org.gradle.internal.execution.steps.CaptureOutputsAfterExecutionStep.execute(CaptureOutputsAfterExecutionStep.java:69)
+	at org.gradle.internal.execution.steps.CaptureOutputsAfterExecutionStep.execute(CaptureOutputsAfterExecutionStep.java:46)
+	at org.gradle.internal.execution.steps.ResolveInputChangesStep.execute(ResolveInputChangesStep.java:40)
+	at org.gradle.internal.execution.steps.ResolveInputChangesStep.execute(ResolveInputChangesStep.java:29)
+	at org.gradle.internal.execution.steps.BuildCacheStep.executeWithoutCache(BuildCacheStep.java:189)
+	at org.gradle.internal.execution.steps.BuildCacheStep.executeAndStoreInCache(BuildCacheStep.java:145)
+	at org.gradle.internal.execution.steps.BuildCacheStep.lambda$executeWithCache$4(BuildCacheStep.java:101)
+	at org.gradle.internal.execution.steps.BuildCacheStep.lambda$executeWithCache$5(BuildCacheStep.java:101)
+	at org.gradle.internal.Try$Success.map(Try.java:175)
+	at org.gradle.internal.execution.steps.BuildCacheStep.executeWithCache(BuildCacheStep.java:85)
+	at org.gradle.internal.execution.steps.BuildCacheStep.lambda$execute$0(BuildCacheStep.java:74)
+	at org.gradle.internal.Either$Left.fold(Either.java:115)
+	at org.gradle.internal.execution.caching.CachingState.fold(CachingState.java:62)
+	at org.gradle.internal.execution.steps.BuildCacheStep.execute(BuildCacheStep.java:73)
+	at org.gradle.internal.execution.steps.BuildCacheStep.execute(BuildCacheStep.java:48)
+	at org.gradle.internal.execution.steps.StoreExecutionStateStep.execute(StoreExecutionStateStep.java:46)
+	at org.gradle.internal.execution.steps.StoreExecutionStateStep.execute(StoreExecutionStateStep.java:35)
+	at org.gradle.internal.execution.steps.SkipUpToDateStep.executeBecause(SkipUpToDateStep.java:75)
+	at org.gradle.internal.execution.steps.SkipUpToDateStep.lambda$execute$2(SkipUpToDateStep.java:53)
+	at org.gradle.internal.execution.steps.SkipUpToDateStep.execute(SkipUpToDateStep.java:53)
+	at org.gradle.internal.execution.steps.SkipUpToDateStep.execute(SkipUpToDateStep.java:35)
+	at org.gradle.internal.execution.steps.legacy.MarkSnapshottingInputsFinishedStep.execute(MarkSnapshottingInputsFinishedStep.java:37)
+	at org.gradle.internal.execution.steps.legacy.MarkSnapshottingInputsFinishedStep.execute(MarkSnapshottingInputsFinishedStep.java:27)
+	at org.gradle.internal.execution.steps.ResolveIncrementalCachingStateStep.executeDelegate(ResolveIncrementalCachingStateStep.java:49)
+	at org.gradle.internal.execution.steps.ResolveIncrementalCachingStateStep.executeDelegate(ResolveIncrementalCachingStateStep.java:27)
+	at org.gradle.internal.execution.steps.AbstractResolveCachingStateStep.execute(AbstractResolveCachingStateStep.java:71)
+	at org.gradle.internal.execution.steps.AbstractResolveCachingStateStep.execute(AbstractResolveCachingStateStep.java:39)
+	at org.gradle.internal.execution.steps.ResolveChangesStep.execute(ResolveChangesStep.java:65)
+	at org.gradle.internal.execution.steps.ResolveChangesStep.execute(ResolveChangesStep.java:36)
 	at org.gradle.internal.execution.steps.ValidateStep.execute(ValidateStep.java:107)
 	at org.gradle.internal.execution.steps.ValidateStep.execute(ValidateStep.java:56)
 	at org.gradle.internal.execution.steps.AbstractCaptureStateBeforeExecutionStep.execute(AbstractCaptureStateBeforeExecutionStep.java:64)
@@ -101,35 +104,6 @@ BUILD FAILED in 51s
 	at org.gradle.execution.taskgraph.DefaultTaskExecutionGraph$BuildOperationAwareExecutionAction.execute(DefaultTaskExecutionGraph.java:303)
 	at org.gradle.execution.plan.DefaultPlanExecutor$ExecutorWorker.execute(DefaultPlanExecutor.java:459)
 	at org.gradle.execution.plan.DefaultPlanExecutor$ExecutorWorker.run(DefaultPlanExecutor.java:376)
-	at org.gradle.execution.plan.DefaultPlanExecutor.process(DefaultPlanExecutor.java:111)
-	at org.gradle.execution.taskgraph.DefaultTaskExecutionGraph.executeWithServices(DefaultTaskExecutionGraph.java:138)
-	at org.gradle.execution.taskgraph.DefaultTaskExecutionGraph.execute(DefaultTaskExecutionGraph.java:123)
-	at org.gradle.execution.SelectedTaskExecutionAction.execute(SelectedTaskExecutionAction.java:35)
-	at org.gradle.execution.DryRunBuildExecutionAction.execute(DryRunBuildExecutionAction.java:51)
-	at org.gradle.execution.BuildOperationFiringBuildWorkerExecutor$ExecuteTasks.call(BuildOperationFiringBuildWorkerExecutor.java:54)
-	at org.gradle.execution.BuildOperationFiringBuildWorkerExecutor$ExecuteTasks.call(BuildOperationFiringBuildWorkerExecutor.java:43)
-	at org.gradle.internal.operations.DefaultBuildOperationRunner$CallableBuildOperationWorker.execute(DefaultBuildOperationRunner.java:210)
-	at org.gradle.internal.operations.DefaultBuildOperationRunner$CallableBuildOperationWorker.execute(DefaultBuildOperationRunner.java:205)
-	at org.gradle.internal.operations.DefaultBuildOperationRunner$2.execute(DefaultBuildOperationRunner.java:67)
-	at org.gradle.internal.operations.DefaultBuildOperationRunner$2.execute(DefaultBuildOperationRunner.java:60)
-	at org.gradle.internal.operations.DefaultBuildOperationRunner.execute(DefaultBuildOperationRunner.java:167)
-	at org.gradle.internal.operations.DefaultBuildOperationRunner.execute(DefaultBuildOperationRunner.java:60)
-	at org.gradle.internal.operations.DefaultBuildOperationRunner.call(DefaultBuildOperationRunner.java:54)
-	at org.gradle.execution.BuildOperationFiringBuildWorkerExecutor.execute(BuildOperationFiringBuildWorkerExecutor.java:40)
-	at org.gradle.internal.build.DefaultBuildLifecycleController.lambda$executeTasks$10(DefaultBuildLifecycleController.java:313)
-	at org.gradle.internal.model.StateTransitionController.doTransition(StateTransitionController.java:266)
-	at org.gradle.internal.model.StateTransitionController.lambda$tryTransition$8(StateTransitionController.java:177)
-	at org.gradle.internal.work.DefaultSynchronizer.withLock(DefaultSynchronizer.java:46)
-	at org.gradle.internal.model.StateTransitionController.tryTransition(StateTransitionController.java:177)
-	at org.gradle.internal.build.DefaultBuildLifecycleController.executeTasks(DefaultBuildLifecycleController.java:304)
-	at org.gradle.internal.build.DefaultBuildWorkGraphController$DefaultBuildWorkGraph.runWork(DefaultBuildWorkGraphController.java:220)
-	at org.gradle.internal.work.DefaultWorkerLeaseService.withLocks(DefaultWorkerLeaseService.java:263)
-	at org.gradle.internal.work.DefaultWorkerLeaseService.runAsWorkerThread(DefaultWorkerLeaseService.java:127)
-	at org.gradle.composite.internal.DefaultBuildController.doRun(DefaultBuildController.java:181)
-	at org.gradle.composite.internal.DefaultBuildController.access$000(DefaultBuildController.java:50)
-	at org.gradle.composite.internal.DefaultBuildController$BuildOpRunnable.lambda$run$0(DefaultBuildController.java:198)
-	at org.gradle.internal.operations.CurrentBuildOperationRef.with(CurrentBuildOperationRef.java:85)
-	at org.gradle.composite.internal.DefaultBuildController$BuildOpRunnable.run(DefaultBuildController.java:198)
 	at org.gradle.internal.concurrent.ExecutorPolicy$CatchAndRecordFailures.onExecute(ExecutorPolicy.java:64)
 	at org.gradle.internal.concurrent.AbstractManagedExecutor$1.run(AbstractManagedExecutor.java:48)
 Caused by: org.jetbrains.kotlin.gradle.tasks.CompilationErrorException: Compilation error. See log for more details
@@ -165,6 +139,6 @@ Caused by: org.jetbrains.kotlin.gradle.tasks.CompilationErrorException: Compilat
 	... 2 more
 
 
-BUILD FAILED in 51s
-81 actionable tasks: 59 executed, 22 from cache
+BUILD FAILED in 50s
+85 actionable tasks: 67 executed, 18 from cache
 ```
