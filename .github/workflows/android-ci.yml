@@ -10,6 +10,9 @@ on:
 
 permissions:
   contents: read
+  # Needed to publish compiler/test diagnostics as a commit status, because
+  # Actions log archives are not reachable from the development sandbox.
+  statuses: write
 
 concurrency:
   group: android-ci-${{ github.ref }}
@@ -80,6 +83,7 @@ jobs:
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
+          grep -E '(^e: |error:|FAILED|Execution failed for task|Cause:)' /tmp/gradle.log 2>/dev/null | head -60 > errors.txt || true
           # The sandbox this repo is developed in cannot download Actions logs,
           # so the first actionable errors are surfaced in the commit status.
           msg=$(grep -E '(^e: |error:|FAILED|Execution failed for task|Cause:)' /tmp/gradle.log 2>/dev/null | head -18 | tr '\n' ' ' | cut -c1-920)
@@ -112,6 +116,7 @@ jobs:
           path: |
             projects/karentunnel/**/build/reports/
             projects/karentunnel/**/build/test-results/
+            projects/karentunnel/errors.txt
           retention-days: 14
 
       - name: Upload APK
