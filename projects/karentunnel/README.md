@@ -12,9 +12,10 @@
 
 | جنبه | وضعیت | شاهد |
 | --- | --- | --- |
-| کامپایل | ✅ | اجرای `41806531177` |
+| کامپایل | ✅ | اجرای `41807391493` |
 | تست واحد | ✅ **۶۸ تست، ۰ شکست** | `ci/test-totals.txt` |
-| APK دیباگ | ✅ ۲۲٬۱۱۰٬۳۴۹ بایت | artifact `karentunnel-debug-apk` |
+| APK دیباگ | ✅ ۲۲٬۱۱۰٬۳۴۶ بایت | artifact `karentunnel-debug-apk` |
+| APK release (R8 + shrink) | ✅ ۵٬۵۸۷٬۲۸۴ بایت | artifact `karentunnel-release-apk-ci-signed` |
 | Lint | ✅ بدون خطا | همان اجرا |
 | **اجرا روی دستگاه** | ❌ **هرگز** | — |
 | **تونل واقعی** | ❌ **هرگز** | — |

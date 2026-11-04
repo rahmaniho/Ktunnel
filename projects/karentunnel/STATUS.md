@@ -7,9 +7,10 @@
 ```yaml
 phase: implementation
 status: build-green, device-unverified
-last_green_run: 41806531177
+last_green_run: 41807391493
 unit_tests: 68 passed / 0 failed
-apk_debug_bytes: 22110349
+apk_debug_bytes: 22110346
+apk_release_bytes: 5587284
 device_evidence: none
 ```
 
