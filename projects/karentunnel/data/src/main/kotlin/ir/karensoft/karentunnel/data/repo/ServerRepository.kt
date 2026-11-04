@@ -152,7 +152,15 @@ data class ServerList(
 object ServerIdFactory {
 
     fun fromEndpoint(host: String, port: Int): ServerId {
-        val safeHost = host.lowercase().replace(Regex("[^a-z0-9.-]"), "-").trim('-')
-        return ServerId("wg-$safeHost-$port")
+        val safePort = port.coerceIn(1, 65535)
+        val safeHost = host.lowercase()
+            // Dots are legal in a hostname but ".." is a traversal sequence, and
+            // the id becomes a filename. Collapse runs of dots first so that
+            // "../../etc" cannot survive as "..-..-etc".
+            .replace(Regex("\\.{2,}"), ".")
+            .replace(Regex("[^a-z0-9.-]"), "-")
+            .trim('-', '.')
+            .ifBlank { "host" }
+        return ServerId("wg-$safeHost-$safePort")
     }
 }

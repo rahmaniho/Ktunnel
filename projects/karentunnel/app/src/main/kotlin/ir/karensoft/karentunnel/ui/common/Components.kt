@@ -2,6 +2,7 @@ package ir.karensoft.karentunnel.ui.common
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -36,9 +37,11 @@ import ir.karensoft.karentunnel.ui.theme.TunnelColors
 fun ScreenScaffold(
     title: String,
     onBack: () -> Unit,
-    content: @Composable (Modifier) -> Unit,
+    floatingActionButton: @Composable () -> Unit = {},
+    content: @Composable (PaddingValues) -> Unit,
 ) {
     Scaffold(
+        floatingActionButton = floatingActionButton,
         topBar = {
             TopAppBar(
                 title = { Text(title, style = MaterialTheme.typography.titleMedium) },
@@ -53,7 +56,7 @@ fun ScreenScaffold(
             )
         },
     ) { innerPadding ->
-        content(Modifier.padding(innerPadding))
+        content(innerPadding)
     }
 }
 
@@ -125,12 +128,12 @@ fun NoticeCard(
 ) {
     val container = when (tone) {
         NoticeTone.Neutral -> MaterialTheme.colorScheme.surfaceVariant
-        NoticeTone.Warning -> TunnelColors.Degraded.copy(alpha = 0.12f)
+        NoticeTone.Warning -> TunnelColors.degraded.copy(alpha = 0.12f)
         NoticeTone.Danger -> MaterialTheme.colorScheme.error.copy(alpha = 0.12f)
     }
     val accent = when (tone) {
         NoticeTone.Neutral -> MaterialTheme.colorScheme.onSurfaceVariant
-        NoticeTone.Warning -> TunnelColors.Degraded
+        NoticeTone.Warning -> TunnelColors.degraded
         NoticeTone.Danger -> MaterialTheme.colorScheme.error
     }
     Card(

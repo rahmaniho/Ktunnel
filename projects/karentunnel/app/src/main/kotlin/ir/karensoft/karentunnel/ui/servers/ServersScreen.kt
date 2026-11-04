@@ -1,6 +1,7 @@
 package ir.karensoft.karentunnel.ui.servers
 
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -30,7 +31,6 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.RadioButton
-import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.rememberModalBottomSheetState
@@ -77,17 +77,18 @@ fun ServersScreen(
     var showImport by remember { mutableStateOf(false) }
     val sheetState = rememberModalBottomSheetState()
 
-    ScreenScaffold(title = "سرورها", onBack = onBack) { padding ->
-        Scaffold(
-            modifier = modifier.padding(padding),
-            floatingActionButton = {
-                ExtendedFloatingActionButton(
-                    onClick = { showImport = true },
-                    icon = { Icon(Icons.Default.Add, contentDescription = null) },
-                    text = { Text("افزودن سرور") },
-                )
-            },
-        ) { inner ->
+    ScreenScaffold(
+        title = "سرورها",
+        onBack = onBack,
+        floatingActionButton = {
+            ExtendedFloatingActionButton(
+                onClick = { showImport = true },
+                icon = { Icon(Icons.Default.Add, contentDescription = null) },
+                text = { Text("افزودن سرور") },
+            )
+        },
+    ) { inner ->
+        Box(modifier = modifier.fillMaxSize()) {
             if (state.servers.isEmpty() && !state.loading) {
                 Column(
                     modifier = Modifier
