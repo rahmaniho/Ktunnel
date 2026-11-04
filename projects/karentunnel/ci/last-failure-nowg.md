@@ -1,11 +1,13 @@
 # شکست کامپایل چهار ماژول کتابخانه‌ای
 
-- اجرا: https://github.com/rahmaniho/Ktunnel/actions/runs/41759574947
+- اجرا: https://github.com/rahmaniho/Ktunnel/actions/runs/41759854884
 
 ```
-> Task :vpn:compileDebugKotlin FAILED
-e: file:///home/runner/work/Ktunnel/Ktunnel/projects/karentunnel/data/src/main/kotlin/ir/karensoft/karentunnel/data/secure/SecureConfigStore.kt:163:1 Syntax error: Unclosed comment.
 > Task :data:compileDebugKotlin FAILED
+e: file:///home/runner/work/Ktunnel/Ktunnel/projects/karentunnel/data/src/main/kotlin/ir/karensoft/karentunnel/data/secure/SecureConfigStore.kt:163:1 Syntax error: Unclosed comment.
+e: file:///home/runner/work/Ktunnel/Ktunnel/projects/karentunnel/vpn/src/main/kotlin/ir/karensoft/karentunnel/vpn/controller/WireGuardTunnelController.kt:88:21 Unresolved reference 'fill'.
+> Task :vpn:compileDebugKotlin FAILED
+> Task :core:compileDebugUnitTestKotlin FAILED
 e: file:///home/runner/work/Ktunnel/Ktunnel/projects/karentunnel/core/src/test/kotlin/ir/karensoft/karentunnel/core/model/ConfigNormalizerTest.kt:5:43 Unresolved reference 'TestConfigs'.
 e: file:///home/runner/work/Ktunnel/Ktunnel/projects/karentunnel/core/src/test/kotlin/ir/karensoft/karentunnel/core/model/ConfigNormalizerTest.kt:18:49 Unresolved reference 'TestConfigs'.
 e: file:///home/runner/work/Ktunnel/Ktunnel/projects/karentunnel/core/src/test/kotlin/ir/karensoft/karentunnel/core/model/ConfigNormalizerTest.kt:29:49 Unresolved reference 'TestConfigs'.
@@ -34,18 +36,13 @@ e: file:///home/runner/work/Ktunnel/Ktunnel/projects/karentunnel/core/src/test/k
 e: file:///home/runner/work/Ktunnel/Ktunnel/projects/karentunnel/core/src/test/kotlin/ir/karensoft/karentunnel/core/model/ConfigNormalizerTest.kt:181:57 Unresolved reference 'TestConfigs'.
 e: file:///home/runner/work/Ktunnel/Ktunnel/projects/karentunnel/core/src/test/kotlin/ir/karensoft/karentunnel/core/model/ConfigNormalizerTest.kt:187:57 Unresolved reference 'TestConfigs'.
 e: file:///home/runner/work/Ktunnel/Ktunnel/projects/karentunnel/core/src/test/kotlin/ir/karensoft/karentunnel/core/model/ConfigNormalizerTest.kt:192:57 Unresolved reference 'TestConfigs'.
-> Task :core:compileDebugUnitTestKotlin FAILED
-Execution failed for task ':vpn:compileDebugKotlin'.
-   > Could not resolve all files for configuration ':vpn:debugCompileClasspath'.
-      > Could not find com.wireguard.android:tunnel:1.0.20260315.
-org.gradle.api.tasks.TaskExecutionException: Execution failed for task ':vpn:compileDebugKotlin'.
-Caused by: org.gradle.api.internal.artifacts.ivyservice.TypedResolveException: Could not resolve all files for configuration ':vpn:debugCompileClasspath'.
-Caused by: org.gradle.internal.resolve.ModuleVersionNotFoundException: Could not find com.wireguard.android:tunnel:1.0.20260315.
 Execution failed for task ':data:compileDebugKotlin'.
 org.gradle.api.tasks.TaskExecutionException: Execution failed for task ':data:compileDebugKotlin'.
+Execution failed for task ':vpn:compileDebugKotlin'.
+org.gradle.api.tasks.TaskExecutionException: Execution failed for task ':vpn:compileDebugKotlin'.
 Execution failed for task ':core:compileDebugUnitTestKotlin'.
 org.gradle.api.tasks.TaskExecutionException: Execution failed for task ':core:compileDebugUnitTestKotlin'.
-BUILD FAILED in 43s
+BUILD FAILED in 31s
 ```
 
 ```
@@ -127,6 +124,6 @@ Caused by: org.jetbrains.kotlin.gradle.tasks.CompilationErrorException: Compilat
 
 ==============================================================================
 
-BUILD FAILED in 43s
+BUILD FAILED in 31s
 44 actionable tasks: 35 executed, 9 from cache
 ```
