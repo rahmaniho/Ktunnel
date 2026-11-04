@@ -258,3 +258,96 @@ jobs:
           git commit -m "ci: record compile-only failure for run $GITHUB_RUN_ID" || exit 0
           git pull --rebase --autostash origin "$GITHUB_REF_NAME" || true
           git push origin "HEAD:$GITHUB_REF_NAME" || true
+
+  # WireGuard's documentation defines the embedding API in terms of a Backend
+  # interface, but the exact signatures decide whether our controller compiles.
+  # This job resolves the published AAR and dumps the real declarations instead
+  # of trusting anyone's memory of them.
+  wireguard-api:
+    name: dump the real WireGuard tunnel API
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - name: Set up JDK 17
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "17"
+      - name: Set up Android SDK
+        run: |
+          set -euo pipefail
+          SDK_ROOT="$RUNNER_TOOL_CACHE/android-sdk"
+          mkdir -p "$SDK_ROOT/cmdline-tools"
+          curl -fsSL -o /tmp/cmdtools.zip \
+            https://dl.google.com/android/repository/commandlinetools-linux-11076708_latest.zip
+          unzip -q /tmp/cmdtools.zip -d "$SDK_ROOT/cmdline-tools"
+          mv "$SDK_ROOT/cmdline-tools/cmdline-tools" "$SDK_ROOT/cmdline-tools/latest"
+          yes | "$SDK_ROOT/cmdline-tools/latest/bin/sdkmanager" --licenses >/dev/null 2>&1 || true
+          "$SDK_ROOT/cmdline-tools/latest/bin/sdkmanager" --install \
+            "platform-tools" "platforms;android-36" "build-tools;35.0.0" >/dev/null
+          echo "ANDROID_HOME=$SDK_ROOT" >> "$GITHUB_ENV"
+          echo "ANDROID_SDK_ROOT=$SDK_ROOT" >> "$GITHUB_ENV"
+      - name: Set up Gradle
+        uses: gradle/actions/setup-gradle@v4
+      - name: Resolve the AAR and dump javax/javap output
+        run: |
+          VERSION=$(grep -E '^wireguardTunnel *=' gradle/libs.versions.toml | sed 's/.*"\(.*\)".*/\1/')
+          echo "resolving com.wireguard.android:tunnel:$VERSION"
+          cat > /tmp/resolve.gradle <<'GRADLE'
+          allprojects {
+              tasks.register("copyTunnelAar") {
+                  doLast {
+                      def cfg = project.configurations.detachedConfiguration(
+                          project.dependencies.create("com.wireguard.android:tunnel:VERSION"))
+                      cfg.transitive = false
+                      cfg.files.each { f -> copy { from f; into "/tmp/aar" } }
+                  }
+              }
+          }
+          GRADLE
+          sed -i "s/VERSION/$VERSION/" /tmp/resolve.gradle
+          ./gradlew -I /tmp/resolve.gradle :app:copyTunnelAar --console=plain -q 2>&1 | tail -5 || true
+          ls -la /tmp/aar || true
+          mkdir -p /tmp/aar/x && cd /tmp/aar
+          for f in *.aar; do unzip -o -q "$f" -d x; done
+          ls -la x || true
+          mkdir -p /tmp/cls && cp x/classes.jar /tmp/cls/ 2>/dev/null || true
+          {
+            echo "# Real WireGuard tunnel API"
+            echo
+            echo "Version: \`$VERSION\`"
+            echo
+            echo "## AAR contents"
+            echo '```'
+            (cd /tmp/aar && ls -la *.aar || true)
+            echo '```'
+            echo "## classes.jar top-level packages"
+            echo '```'
+            unzip -l /tmp/cls/classes.jar 2>/dev/null | awk '{print $4}' | grep '\.class$' \
+              | sed 's#/[^/]*$##' | sort -u | head -60 || true
+            echo '```'
+            for c in com.wireguard.android.backend.Backend \
+                     com.wireguard.android.backend.Tunnel \
+                     com.wireguard.android.backend.Statistics \
+                     com.wireguard.android.backend.GoBackend \
+                     com.wireguard.config.Config \
+                     com.wireguard.config.Interface \
+                     com.wireguard.config.Peer \
+                     com.wireguard.crypto.Key \
+                     com.wireguard.crypto.KeyPair; do
+              echo
+              echo "## \`$c\`"
+              echo '```'
+              javap -classpath /tmp/cls/classes.jar "$c" 2>&1 | head -60 || true
+              echo '```'
+            done
+          } > ci/wireguard-api.md
+          cat ci/wireguard-api.md
+          git config user.name "android-ci"
+          git config user.email "android-ci@users.noreply.github.com"
+          git add ci/wireguard-api.md
+          git commit -m "ci: record the real WireGuard tunnel API" || exit 0
+          git pull --rebase --autostash origin "$GITHUB_REF_NAME" || true
+          git push origin "HEAD:$GITHUB_REF_NAME" || true
+
