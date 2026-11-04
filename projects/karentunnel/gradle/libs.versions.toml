@@ -1,0 +1,87 @@
+#
+# Pinned dependency versions. No dynamic versions, no `+`, no ranges:
+# the build must be reproducible (see docs/TECHNICAL-FEASIBILITY.md §10).
+#
+[versions]
+# --- build toolchain ---
+agp = "8.13.2"
+kotlin = "2.1.20"
+ksp = "2.1.20-1.0.32"
+
+# --- android platform ---
+compileSdk = "36"
+minSdk = "26"
+targetSdk = "35"
+
+# --- runtime dependencies ---
+# Aligned with the vendored upstream tunnel library (wireguardVersionName).
+wireguardTunnel = "1.0.20260315"
+coroutines = "1.10.2"
+coreKtx = "1.15.0"
+activityCompose = "1.10.1"
+lifecycle = "2.9.1"
+composeBom = "2025.06.01"
+datastore = "1.1.7"
+desugarJdkLibs = "2.1.5"
+annotation = "1.9.1"
+collection = "1.5.0"
+jsr305 = "3.0.2"
+# kotlinx.serialization for the on-disk (encrypted) config envelope
+serialization = "1.8.1"
+
+# --- test dependencies ---
+junit4 = "4.13.2"
+truth = "1.4.4"
+mockk = "1.14.2"
+coroutinesTest = "1.10.2"
+androidxTestJunit = "1.2.1"
+espresso = "3.6.1"
+robolectric = "4.14.1"
+turbine = "1.2.0"
+
+[libraries]
+# production
+kotlinx-coroutines-android = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-android", version.ref = "coroutines" }
+kotlinx-coroutines-core = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-core", version.ref = "coroutines" }
+kotlinx-serialization-json = { module = "org.jetbrains.kotlinx:kotlinx-serialization-json", version.ref = "serialization" }
+
+androidx-core-ktx = { module = "androidx.core:core-ktx", version.ref = "coreKtx" }
+androidx-activity-compose = { module = "androidx.activity:activity-compose", version.ref = "activityCompose" }
+androidx-lifecycle-runtime-ktx = { module = "androidx.lifecycle:lifecycle-runtime-ktx", version.ref = "lifecycle" }
+androidx-lifecycle-runtime-compose = { module = "androidx.lifecycle:lifecycle-runtime-compose", version.ref = "lifecycle" }
+androidx-lifecycle-viewmodel-compose = { module = "androidx.lifecycle:lifecycle-viewmodel-compose", version.ref = "lifecycle" }
+androidx-datastore-preferences = { module = "androidx.datastore:datastore-preferences", version.ref = "datastore" }
+androidx-annotation = { module = "androidx.annotation:annotation", version.ref = "annotation" }
+androidx-collection = { module = "androidx.collection:collection", version.ref = "collection" }
+jsr305 = { module = "com.google.code.findbugs:jsr305", version.ref = "jsr305" }
+
+compose-bom = { module = "androidx.compose:compose-bom", version.ref = "composeBom" }
+compose-ui = { module = "androidx.compose.ui:ui" }
+compose-ui-graphics = { module = "androidx.compose.ui:ui-graphics" }
+compose-ui-tooling = { module = "androidx.compose.ui:ui-tooling" }
+compose-ui-tooling-preview = { module = "androidx.compose.ui:ui-tooling-preview" }
+compose-material3 = { module = "androidx.compose.material3:material3" }
+compose-material-icons-extended = { module = "androidx.compose.material:material-icons-extended" }
+
+desugar-jdk-libs = { module = "com.android.tools:desugar_jdk_libs", version.ref = "desugarJdkLibs" }
+
+# The official WireGuard tunnel library — the only sanctioned crypto/tunnel source.
+# See docs/TECHNICAL-FEASIBILITY.md (F1, F2, §7).
+wireguard-tunnel = { module = "com.wireguard.android:tunnel", version.ref = "wireguardTunnel" }
+
+# test
+junit4 = { module = "junit:junit", version.ref = "junit4" }
+truth = { module = "com.google.truth:truth", version.ref = "truth" }
+mockk = { module = "io.mockk:mockk", version.ref = "mockk" }
+kotlinx-coroutines-test = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-test", version.ref = "coroutinesTest" }
+turbine = { module = "app.cash.turbine:turbine", version.ref = "turbine" }
+androidx-test-junit = { module = "androidx.test.ext:junit", version.ref = "androidxTestJunit" }
+espresso-core = { module = "androidx.test.espresso:espresso-core", version.ref = "espresso" }
+robolectric = { module = "org.robolectric:robolectric", version.ref = "robolectric" }
+
+[plugins]
+android-application = { id = "com.android.application", version.ref = "agp" }
+android-library = { id = "com.android.library", version.ref = "agp" }
+kotlin-android = { id = "org.jetbrains.kotlin.android", version.ref = "kotlin" }
+kotlin-compose = { id = "org.jetbrains.kotlin.plugin.compose", version.ref = "kotlin" }
+kotlin-serialization = { id = "org.jetbrains.kotlin.plugin.serialization", version.ref = "kotlin" }

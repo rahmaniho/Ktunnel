@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Neutral shield mark: no "lock" metaphor, no claims about protection level. -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="108dp"
+    android:height="108dp"
+    android:viewportWidth="108"
+    android:viewportHeight="108">
+    <path
+        android:fillColor="#FFFFFF"
+        android:pathData="M54,26 L76,36 L76,56 C76,68 66,78 54,82 C42,78 32,68 32,56 L32,36 Z" />
+</vector>
