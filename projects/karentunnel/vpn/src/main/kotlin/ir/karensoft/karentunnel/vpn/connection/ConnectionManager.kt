@@ -11,6 +11,7 @@ import ir.karensoft.karentunnel.vpn.controller.TunnelStatus
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.isActive
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -220,7 +221,12 @@ class ConnectionManager(
     private fun startHealthMonitoring(config: TunnelConfig) {
         healthJob?.cancel()
         healthJob = scope.launch {
-            while (true) {
+            // Bounded, not `while (true)`: an unbounded ticker keeps the test
+            // scheduler non-idle forever, and a monitor that can never finish is
+            // also a monitor that never notices it has been left behind.
+            var ticks = 0
+            while (isActive && ticks < HEALTH_MAX_TICKS) {
+                ticks++
                 delay(healthIntervalMillis)
                 val stats = controller.statistics()
                 val evidence = StateMachine.Evidence(
@@ -268,6 +274,16 @@ class ConnectionManager(
 
     private companion object {
         const val HEALTH_INTERVAL_MILLIS = 5_000L
+
+        /**
+         * Upper bound on confirmation ticks for one connection.
+         *
+         * WireGuard rekeys roughly every 2 minutes and a healthy peer handshakes
+         * well inside the stale threshold, so a run that never confirms within
+         * this many ticks is not going to confirm. Stopping is also what lets a
+         * test drive the scheduler to a quiescent state.
+         */
+        const val HEALTH_MAX_TICKS = 120
     }
 }
 
