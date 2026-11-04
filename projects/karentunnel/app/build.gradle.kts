@@ -1,8 +1,23 @@
+import java.util.Properties
+
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
     alias(libs.plugins.kotlin.compose)
     alias(libs.plugins.kotlin.serialization)
+}
+
+// Release signing is read from an untracked keystore.properties. The file is
+// git-ignored on purpose: a committed keystore plus its passwords is a leaked
+// signing key. If the file is absent the release build simply has no signing
+// config and Gradle produces an unsigned APK, which is the honest outcome --
+// there is no debug-key fallback, because a release artifact signed with a debug
+// key would look distributable while being untrusted.
+val keystorePropertiesFile = rootProject.file("keystore.properties")
+val keystoreProperties = Properties().apply {
+    if (keystorePropertiesFile.exists()) {
+        keystorePropertiesFile.inputStream().use { stream -> load(stream) }
+    }
 }
 
 android {
@@ -22,6 +37,22 @@ android {
         ndk { abiFilters += listOf("arm64-v8a", "armeabi-v7a", "x86_64") }
     }
 
+    signingConfigs {
+        if (keystoreProperties.isNotEmpty()) {
+            create("release") {
+                storeFile = file(keystoreProperties.getProperty("storeFile"))
+                storePassword = keystoreProperties.getProperty("storePassword")
+                keyAlias = keystoreProperties.getProperty("keyAlias")
+                keyPassword = keystoreProperties.getProperty("keyPassword")
+                // v1 is not really needed at minSdk 26, but keeping it costs one
+                // extra signature block and helps some sideload installers.
+                enableV1Signing = true
+                enableV2Signing = true
+                enableV3Signing = true
+            }
+        }
+    }
+
     buildTypes {
         debug {
             applicationIdSuffix = ".debug"
@@ -32,8 +63,9 @@ android {
             isMinifyEnabled = true
             isShrinkResources = true
             proguardFiles(getDefaultProguardFile("proguard-android-optimize.txt"), "proguard-rules.pro")
-            // Signing comes from an untracked keystore.properties in CI.
-            // No debug keys, no committed keystores (see docs/BUILD.md).
+            // Attached only when keystore.properties exists; otherwise the APK is
+            // left unsigned rather than signed with a key that means nothing.
+            signingConfig = signingConfigs.findByName("release")
         }
     }
 

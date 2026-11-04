@@ -85,6 +85,38 @@ jobs:
           ./gradlew assembleDebug --stacktrace 2>&1 | tee -a /tmp/gradle.log
           exit ${PIPESTATUS[0]}
 
+      # Counts are written to the branch because the reports artifact redirects to
+      # a storage host the development sandbox cannot reach, so the number of
+      # tests that actually ran would otherwise be unverifiable.
+      # Test totals are printed to the job log only.
+      #
+      # An earlier version of this step committed the numbers to ci/ on every run.
+      # That was a trap: each commit by GITHUB_TOKEN does not retrigger the
+      # workflow, so every run left the branch head one commit past the last
+      # verified one, and the head could never carry its own green run. The
+      # evidence moved forward forever and proved less each time.
+      - name: Report test totals
+        if: always()
+        run: |
+          python3 - <<'PYEOF'
+          import glob, xml.etree.ElementTree as ET
+          total = fails = skips = 0
+          per = {}
+          for f in glob.glob("**/build/test-results/**/*.xml", recursive=True):
+              try:
+                  r = ET.parse(f).getroot()
+              except Exception:
+                  continue
+              mod = f.split("test-results/")[1].split("/")[0] if "test-results/" in f else "?"
+              total += int(r.get("tests", 0))
+              fails += int(r.get("failures", 0)) + int(r.get("errors", 0))
+              skips += int(r.get("skipped", 0))
+              per[mod] = per.get(mod, 0) + int(r.get("tests", 0))
+              print(f"  {mod:12} {int(r.get('tests', 0)):4} tests")
+          print(f"TOTAL {total} tests, {fails} failures, {skips} skipped")
+          print(f"::notice::unit tests: {total} run, {fails} failed, {skips} skipped")
+          PYEOF
+
       - name: Lint (release-blocking)
         run: |
           set +e
@@ -224,17 +256,21 @@ jobs:
           chmod +x ci/probe-wireguard.sh
           ci/probe-wireguard.sh > /tmp/probe.txt 2>&1 || true
           cat /tmp/probe.txt
-          cp /tmp/probe.txt ci/wireguard-artifact-probe.md
-          git config user.name "android-ci"
-          git config user.email "android-ci@users.noreply.github.com"
-          git add ci/wireguard-artifact-probe.md
-          git commit -m "ci: record WireGuard artifact probe" || exit 0
-          for attempt in 1 2 3; do
-            git pull --rebase --autostash origin "$GITHUB_REF_NAME" || true
-            if git push origin "HEAD:$GITHUB_REF_NAME"; then exit 0; fi
-            sleep 5
-          done
-          true
+          cp /tmp/probe.txt "$RUNNER_TEMP/wireguard-artifact-probe.md"
+
+      # Uploaded rather than committed. A commit made with GITHUB_TOKEN does not
+      # retrigger this workflow, so every successful run used to push the branch
+      # one commit past the last verified one; the head could then never carry a
+      # green run of its own. The probe result is evidence, and evidence belongs
+      # in the artifact store.
+      - name: Upload WireGuard artifact probe
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: wireguard-artifact-probe
+          path: ${{ runner.temp }}/wireguard-artifact-probe.md
+          retention-days: 30
+          if-no-files-found: warn
 
   # Compiles only the modules that do not depend on the WireGuard library, so
   # real Kotlin errors are separated from artifact-resolution failures.
@@ -354,15 +390,109 @@ jobs:
               javap -classpath /tmp/cls.jar "$c" 2>&1 | head -50 || true
               echo '```'
             done
-          } > ci/wireguard-api.md
-          cat ci/wireguard-api.md
+          } > "$RUNNER_TEMP/wireguard-api.md"
+          cat "$RUNNER_TEMP/wireguard-api.md"
+
+      - name: Upload the real WireGuard tunnel API dump
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: wireguard-api-dump
+          path: ${{ runner.temp }}/wireguard-api.md
+          retention-days: 30
+          if-no-files-found: warn
+
+  # Produces a *release* APK, minified and signed with a throwaway CI keystore.
+  #
+  # Why a throwaway key: the real release key must never live in this repository,
+  # and there is no secret configured. A CI-generated key still proves the release
+  # pipeline works end to end (R8, resource shrinking, signing) and produces an
+  # installable artifact, as long as nobody mistakes it for a distributable one.
+  # The APK is labelled ci-signed in the artifact name for exactly that reason.
+  release-apk:
+    name: assemble release APK (CI-signed)
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v4
+      - name: Set up JDK 17
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "17"
+      - name: Set up Android SDK
+        run: |
+          set -euo pipefail
+          SDK_ROOT="$RUNNER_TOOL_CACHE/android-sdk"
+          mkdir -p "$SDK_ROOT/cmdline-tools"
+          curl -fsSL -o /tmp/cmdtools.zip \
+            https://dl.google.com/android/repository/commandlinetools-linux-11076708_latest.zip
+          unzip -q /tmp/cmdtools.zip -d "$SDK_ROOT/cmdline-tools"
+          mv "$SDK_ROOT/cmdline-tools/cmdline-tools" "$SDK_ROOT/cmdline-tools/latest"
+          yes | "$SDK_ROOT/cmdline-tools/latest/bin/sdkmanager" --licenses >/dev/null 2>&1 || true
+          "$SDK_ROOT/cmdline-tools/latest/bin/sdkmanager" --install \
+            "platform-tools" "platforms;android-36" "build-tools;35.0.0" >/dev/null
+          echo "ANDROID_HOME=$SDK_ROOT" >> "$GITHUB_ENV"
+          echo "ANDROID_SDK_ROOT=$SDK_ROOT" >> "$GITHUB_ENV"
+      - name: Set up Gradle
+        uses: gradle/actions/setup-gradle@v4
+      - name: Generate a throwaway signing key
+        run: |
+          set -euo pipefail
+          keytool -genkeypair -v \
+            -keystore /tmp/ci-release.jks \
+            -alias ci-release \
+            -keyalg RSA -keysize 4096 -validity 3650 \
+            -storepass ci-throwaway -keypass ci-throwaway \
+            -dname "CN=KarenTunnel CI, OU=Build, O=none, L=none, S=none, C=IR" >/dev/null
+          cat > keystore.properties <<PROPS
+          storeFile=/tmp/ci-release.jks
+          storePassword=ci-throwaway
+          keyAlias=ci-release
+          keyPassword=ci-throwaway
+          PROPS
+          echo "keystore.properties written (untracked)"
+      - name: Assemble release
+        run: |
+          set +e
+          ./gradlew assembleRelease --stacktrace 2>&1 | tee /tmp/release.log
+          exit ${PIPESTATUS[0]}
+      - name: Verify the APK is signed
+        run: |
+          set -euo pipefail
+          APK=$(find app/build/outputs/apk/release -name '*.apk' | head -1)
+          echo "apk: $APK"
+          ls -l "$APK"
+          APKSIGNER="$RUNNER_TOOL_CACHE/android-sdk/build-tools/35.0.0/apksigner"
+          "$APKSIGNER" verify --print-certs "$APK"
+      - name: Record release failure
+        if: failure()
+        run: |
+          mkdir -p ci
+          {
+            echo "# شکست بیلد release"
+            echo
+            echo "- اجرا: $GITHUB_SERVER_URL/$GITHUB_REPOSITORY/actions/runs/$GITHUB_RUN_ID"
+            echo
+            echo '```'
+            grep -E '(^e: |^w: |error:|FAILED|Execution failed|Could not|R8|Missing class)' \
+              /tmp/release.log | head -200 || true
+            echo '```'
+          } > ci/last-release-failure.md
           git config user.name "android-ci"
           git config user.email "android-ci@users.noreply.github.com"
-          git add ci/wireguard-api.md
-          git commit -m "ci: record the real WireGuard tunnel API" || exit 0
+          git add ci/last-release-failure.md
+          git commit -m "ci: record release build failure for run $GITHUB_RUN_ID" || exit 0
           for attempt in 1 2 3; do
             git pull --rebase --autostash origin "$GITHUB_REF_NAME" || true
             if git push origin "HEAD:$GITHUB_REF_NAME"; then exit 0; fi
             sleep 5
           done
           true
+      - name: Upload release APK
+        if: success()
+        uses: actions/upload-artifact@v4
+        with:
+          name: karentunnel-release-apk-ci-signed
+          path: projects/karentunnel/app/build/outputs/apk/release/*.apk
+          retention-days: 14

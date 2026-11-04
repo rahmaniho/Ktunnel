@@ -23,11 +23,16 @@ import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Dns
+import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -68,6 +73,9 @@ fun DashboardScreen(
     state: DashboardUiState,
     onToggleConnection: () -> Unit,
     modifier: Modifier = Modifier,
+    onOpenServers: () -> Unit = {},
+    onOpenSettings: () -> Unit = {},
+    onOpenDiagnostics: () -> Unit = {},
 ) {
     Column(
         modifier = modifier
@@ -76,6 +84,13 @@ fun DashboardScreen(
             .padding(horizontal = 20.dp, vertical = 16.dp),
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
+        DashboardTopBar(
+            onOpenServers = onOpenServers,
+            onOpenSettings = onOpenSettings,
+        )
+
+        Spacer(Modifier.height(8.dp))
+
         ServerHeader(
             serverName = state.serverName,
             protocolLabel = state.protocolLabel,
@@ -104,6 +119,12 @@ fun DashboardScreen(
         if (state.connection is ConnectionState.Degraded) {
             Spacer(Modifier.height(12.dp))
             DegradedCard(state.connection as ConnectionState.Degraded, onDisconnect = onToggleConnection)
+        }
+
+        Spacer(Modifier.height(16.dp))
+
+        TextButton(onClick = onOpenDiagnostics) {
+            Text(stringResource(R.string.dashboard_open_diagnostics))
         }
 
         Spacer(Modifier.height(24.dp))
@@ -478,5 +499,34 @@ private fun PreviewError() {
             ),
             onToggleConnection = {},
         )
+    }
+}
+
+/**
+ * Two icon actions, no overflow menu: with four screens an icon pair is faster
+ * than a drawer and keeps the dashboard's single-action promise intact.
+ */
+@Composable
+private fun DashboardTopBar(
+    onOpenServers: () -> Unit,
+    onOpenSettings: () -> Unit,
+) {
+    Row(
+        modifier = Modifier.fillMaxWidth(),
+        horizontalArrangement = Arrangement.SpaceBetween,
+        verticalAlignment = Alignment.CenterVertically,
+    ) {
+        IconButton(onClick = onOpenServers) {
+            Icon(
+                imageVector = Icons.Default.Dns,
+                contentDescription = stringResource(R.string.dashboard_open_servers),
+            )
+        }
+        IconButton(onClick = onOpenSettings) {
+            Icon(
+                imageVector = Icons.Default.Settings,
+                contentDescription = stringResource(R.string.dashboard_open_settings),
+            )
+        }
     }
 }

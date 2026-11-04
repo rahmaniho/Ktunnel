@@ -9,11 +9,7 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.result.contract.ActivityResultContracts
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.safeDrawingPadding
-import androidx.compose.material3.Surface
 import androidx.compose.runtime.getValue
-import androidx.compose.ui.Modifier
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.activity.viewModels
@@ -21,9 +17,12 @@ import androidx.lifecycle.viewmodel.initializer
 import androidx.lifecycle.viewmodel.viewModelFactory
 import ir.karensoft.karentunnel.core.model.ServerId
 import ir.karensoft.karentunnel.service.TunnelForegroundService
-import ir.karensoft.karentunnel.ui.dashboard.DashboardScreen
+import ir.karensoft.karentunnel.ui.KarenTunnelNavHost
 import ir.karensoft.karentunnel.ui.dashboard.DashboardViewModel
 import ir.karensoft.karentunnel.ui.dashboard.ForegroundController
+import ir.karensoft.karentunnel.ui.diagnostics.DiagnosticsViewModel
+import ir.karensoft.karentunnel.ui.servers.ServersViewModel
+import ir.karensoft.karentunnel.ui.settings.SettingsViewModel
 import ir.karensoft.karentunnel.ui.theme.KarenTunnelTheme
 import ir.karensoft.karentunnel.vpn.network.NetworkMonitor
 
@@ -53,6 +52,39 @@ class MainActivity : ComponentActivity() {
     private val notificationPermissionLauncher = registerForActivityResult(
         ActivityResultContracts.RequestPermission(),
     ) { /* The FGS still works without it; the notification is just less visible. */ }
+
+    private val serversViewModel: ServersViewModel by viewModels {
+        viewModelFactory {
+            initializer {
+                ServersViewModel(
+                    repository = appContainer.serverRepository,
+                    settings = appContainer.settingsRepository,
+                )
+            }
+        }
+    }
+
+    private val settingsViewModel: SettingsViewModel by viewModels {
+        viewModelFactory {
+            initializer {
+                SettingsViewModel(
+                    repository = appContainer.serverRepository,
+                    settingsRepository = appContainer.settingsRepository,
+                )
+            }
+        }
+    }
+
+    private val diagnosticsViewModel: DiagnosticsViewModel by viewModels {
+        viewModelFactory {
+            initializer {
+                DiagnosticsViewModel(
+                    repository = appContainer.serverRepository,
+                    engine = appContainer.probeEngine,
+                )
+            }
+        }
+    }
 
     private val viewModel: DashboardViewModel by viewModels {
         viewModelFactory {
@@ -86,19 +118,20 @@ class MainActivity : ComponentActivity() {
         setContent {
             KarenTunnelTheme {
                 val state by viewModel.uiState.collectAsStateWithLifecycle()
-                Surface(Modifier.fillMaxSize()) {
-                    DashboardScreen(
-                        state = state,
-                        onToggleConnection = {
-                            if (state.shouldDisconnect) {
-                                viewModel.onPrimaryAction()
-                            } else {
-                                ensureVpnPrepared(launch = true)
-                            }
-                        },
-                        modifier = Modifier.safeDrawingPadding(),
-                    )
-                }
+                KarenTunnelNavHost(
+                    dashboardState = state,
+                    dashboardViewModel = viewModel,
+                    serversViewModel = serversViewModel,
+                    settingsViewModel = settingsViewModel,
+                    diagnosticsViewModel = diagnosticsViewModel,
+                    onConnectRequested = {
+                        if (state.shouldDisconnect) {
+                            viewModel.onPrimaryAction()
+                        } else {
+                            ensureVpnPrepared(launch = true)
+                        }
+                    },
+                )
             }
         }
 
