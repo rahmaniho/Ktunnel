@@ -1,0 +1,19 @@
+name: diag-probe
+on:
+  workflow_dispatch:
+permissions:
+  contents: write
+jobs:
+  probe:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Write a diagnostic file and commit it
+        run: |
+          mkdir -p projects/karentunnel/build-badge
+          date -u +"%Y-%m-%dT%H:%M:%SZ" > projects/karentunnel/build-badge/probe.txt
+          git config user.name "ci-probe"
+          git config user.email "ci-probe@users.noreply.github.com"
+          git add projects/karentunnel/build-badge/probe.txt
+          git commit -m "chore(ci): probe commit-back channel [skip ci]"
+          git push
