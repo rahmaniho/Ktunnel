@@ -562,11 +562,23 @@ jobs:
           BT="$RUNNER_TOOL_CACHE/android-sdk/build-tools/35.0.0"
           for f in out/*.apk; do
             echo "--- $f"
-            "$BT/aapt2" dump badging "$f" \
-              | grep -E "^package:|^sdkVersion:|^targetSdkVersion:|^application-label:|^launchable-activity:" \
-              || { echo "::error::$f has no readable manifest"; exit 1; }
-            "$BT/apksigner" verify --print-certs "$f" >/dev/null \
-              || { echo "::error::$f is not signed"; exit 1; }
+            # Under `set -o pipefail` a grep that finds only some of the patterns
+            # returns 1 and kills the step. Keep the full dump, then filter it
+            # separately -- the point is to prove the manifest parses, and a
+            # missing optional line proves nothing.
+            if ! "$BT/aapt2" dump badging "$f" > /tmp/badging.txt 2>&1; then
+              echo "::error::$f: aapt2 cannot read the manifest"
+              head -20 /tmp/badging.txt
+              exit 1
+            fi
+            grep -E "^package:|^sdkVersion:|^targetSdkVersion:|^application-label:" /tmp/badging.txt || true
+            grep -q "^package:" /tmp/badging.txt \
+              || { echo "::error::$f: no <package> in manifest"; exit 1; }
+            if ! "$BT/apksigner" verify --print-certs "$f" > /tmp/sig.txt 2>&1; then
+              echo "::error::$f is not signed"
+              cat /tmp/sig.txt
+              exit 1
+            fi
             echo "signed: yes"
           done
           # The commit is in the file name so two builds can never be confused,
