@@ -31,6 +31,9 @@ dependencies {
     implementation(libs.kotlinx.serialization.json)
     implementation(libs.androidx.annotation)
 
+    // A module's own test source set does NOT see its testFixtures by default;
+    // it has to depend on them explicitly.
+    testImplementation(testFixtures(project(":core")))
     testImplementation(libs.junit4)
     testImplementation(libs.truth)
     testImplementation(libs.mockk)

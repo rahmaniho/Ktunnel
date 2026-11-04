@@ -30,9 +30,14 @@ interface SecureConfigStore {
 
 /**
  * File-backed implementation. Files live in the app's private storage
- * (`filesDir/tunnels/*.enc`), which is already protected by the OS sandbox;
- * the encryption on top protects against backup leaks, rooted dumps and
- * accidental copies.
+ * (one .enc file per tunnel under filesDir/tunnels), which is already protected
+ * by the OS sandbox; the encryption on top protects against backup leaks,
+ * rooted dumps and accidental copies.
+ *
+ * Note for future edits: Kotlin block comments nest. Writing a glob whose
+ * middle characters are slash-star inside a block comment silently opens
+ * a nested comment, and the file then fails with
+ * "Syntax error: Unclosed comment". Use prose instead of globs here.
  */
 class FileSecureConfigStore(
     private val baseDir: File,
@@ -53,9 +58,16 @@ class FileSecureConfigStore(
             ?: emptyList()
 
     override fun save(config: TunnelConfig): Result<Unit> = runCatching {
-        val envelope = json.encodeToString(StoredConfig.serializer(), StoredConfig.from(config))
-        val sealed = crypto.seal(envelope.toByteArray(Charsets.UTF_8))
-        envelope.fill('\u0000')
+        // Keep the plaintext as a CharArray so it can actually be wiped. Kotlin
+        // Strings are immutable and cannot be zeroed, so holding the envelope as
+        // a String would leave the private key readable in the heap until GC.
+        val envelope: CharArray =
+            json.encodeToString(StoredConfig.serializer(), StoredConfig.from(config)).toCharArray()
+        val sealed = try {
+            crypto.seal(envelope.concatToString().toByteArray(Charsets.UTF_8))
+        } finally {
+            envelope.fill('\u0000')
+        }
         // Write to a temp file then move: a crash mid-write must not destroy a
         // working config.
         val target = fileFor(config.serverId)
@@ -73,8 +85,9 @@ class FileSecureConfigStore(
     override fun load(id: ServerId): Result<TunnelConfig> = runCatching {
         val file = fileFor(id)
         if (!file.isFile) error("not found: ${id.value}")
-        val plain = crypto.open(file.readBytes())
+        val plain: ByteArray = crypto.open(file.readBytes())
         try {
+            // Wiping the ByteArray matters: it holds the decrypted private key.
             val stored = json.decodeFromString(StoredConfig.serializer(), plain.toString(Charsets.UTF_8))
             stored.toConfig()
         } finally {

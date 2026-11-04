@@ -76,9 +76,12 @@ class WireGuardTunnelController(
             return Result.success(Unit)
         }
 
-        val wgQuick = buildWgQuickString(config)
+        // The generated wg-quick text embeds the private key, so it is kept as a
+        // CharArray that can be zeroed. String.fill() does not exist and strings
+        // cannot be wiped at all.
+        val wgQuick: CharArray = buildWgQuickString(config).toCharArray()
         val parsed = try {
-            Config.parse(ByteArrayInputStream(wgQuick.toByteArray(Charsets.UTF_8)))
+            Config.parse(ByteArrayInputStream(wgQuick.concatToString().toByteArray(Charsets.UTF_8)))
         } catch (e: BadConfigException) {
             return Result.failure(ConnectionError.TunnelSetupFailed("invalid generated config"))
         } catch (e: IOException) {
