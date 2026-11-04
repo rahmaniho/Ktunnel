@@ -75,31 +75,36 @@ object ConfigNormalizer {
         val allowedRaw = raw.allowedIps.map { it.trim() }.filter { it.isNotEmpty() }
         if (allowedRaw.isEmpty()) return Result.failure(ConfigError.MissingAllowedIps)
 
-        val wantsIpv6 = allowedRaw.any { it.contains(':') } || address.contains(':')
+        // The IPv6 decision is taken from the *default route*, not from the
+        // presence of any v6 value. A stray "fd00::/8" in allowed-ips must not be
+        // read as "IPv6 is tunneled"; only "::/0" makes that true (see F1).
         val hasIpv6DefaultRoute = allowedRaw.any { isIpv6DefaultRoute(it) }
+        val hasIpv6InterfaceAddress = address.contains(':')
+        val v6Dns = dns.filter { isIpv6(it) }
 
-        val (allowedIps, ipv6Policy, finalAddress, finalDns) = if (wantsIpv6) {
-            if (!hasIpv6DefaultRoute) {
-                // IPv6 interface address without ::/0 => partial IPv6 exposure.
-                // Refuse rather than pretend to be safe.
+        val allowedIps: List<String>
+        val ipv6Policy: Ipv6Policy
+        val finalDns: List<String>
+
+        if (hasIpv6DefaultRoute) {
+            // Everything v6 is inside the tunnel, so v6 resolvers are reachable.
+            allowedIps = allowedRaw.distinct()
+            ipv6Policy = Ipv6Policy.TUNNELED
+            finalDns = dns
+        } else {
+            if (hasIpv6InterfaceAddress) {
+                // v6 address on the interface without a v6 default route: the OS
+                // could emit IPv6 outside the tunnel. Refuse rather than pretend.
                 return Result.failure(ConfigError.Ipv6NotFullyTunneled)
             }
-            // Drop IPv6 DNS: a v6 resolver is unreachable if the tunnel has no v6
-            // route (already guaranteed above) — keep it only when tunneled.
-            val v6dns = dns.filter { isIpv6(it) }
-            if (v6dns.size == dns.size) {
+            if (v6Dns.size == dns.size) {
+                // Every resolver was v6 and v6 is excluded => no working DNS.
                 return Result.failure(ConfigError.Ipv6OnlyDnsUnsupported)
             }
-            Quad4(allowedRaw.distinct(), Ipv6Policy.TUNNELED, address, dns)
-        } else {
-            // Strip anything IPv6 that slipped in, so the OS never gets a v6
-            // address and cannot attempt a non-tunneled IPv6 path.
-            Quad4(
-                allowedIps = allowedRaw.filterNot { it.contains(':') }.distinct(),
-                policy = Ipv6Policy.EXCLUDED,
-                address = address,
-                dns = dns.filterNot { isIpv6(it) },
-            )
+            // Stray v6 routes are dropped so the OS never gets a v6 path.
+            allowedIps = allowedRaw.filterNot { it.contains(':') }.distinct()
+            ipv6Policy = Ipv6Policy.EXCLUDED
+            finalDns = dns.filterNot { isIpv6(it) }
         }
 
         if (allowedIps.isEmpty()) return Result.failure(ConfigError.MissingAllowedIps)
@@ -134,18 +139,6 @@ object ConfigNormalizer {
         }
         return Result.success(config)
     }
-
-    private data class Quad4(
-        val allowedIps: List<String>,
-        val policy: Ipv6Policy,
-        val address: String,
-        val dns: List<String>,
-    )
-
-    private operator fun Quad4.component1() = allowedIps
-    private operator fun Quad4.component2() = policy
-    private operator fun Quad4.component3() = address
-    private operator fun Quad4.component4() = dns
 
     data class Endpoint(val host: String, val port: Int)
 

@@ -18,12 +18,6 @@ android {
         isCoreLibraryDesugaringEnabled = true
     }
 
-    kotlin {
-        compilerOptions {
-            jvmTarget.set(org.jetbrains.kotlin.gradle.dsl.JvmTarget.JVM_17)
-            allWarningsAsErrors.set(true)
-        }
-    }
 
     testOptions {
         unitTests.isReturnDefaultValues = true
@@ -42,9 +36,19 @@ dependencies {
     implementation(libs.androidx.annotation)
     coreLibraryDesugaring(libs.desugar.jdk.libs)
 
+    testImplementation(testFixtures(project(":core")))
     testImplementation(libs.junit4)
     testImplementation(libs.truth)
     testImplementation(libs.mockk)
     testImplementation(libs.kotlinx.coroutines.test)
     testImplementation(libs.robolectric)
+}
+
+// Top-level Kotlin extension (NOT nested in android{}): the AGP 8.13 +
+// Kotlin 2.x contract. Warnings are errors on purpose.
+kotlin {
+    compilerOptions {
+        jvmTarget.set(org.jetbrains.kotlin.gradle.dsl.JvmTarget.fromTarget("17"))
+        allWarningsAsErrors.set(true)
+    }
 }

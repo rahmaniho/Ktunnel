@@ -50,6 +50,10 @@ class ConnectionManager(
     private var healthJob: Job? = null
     private var currentConfig: TunnelConfig? = null
 
+    /** Why the current/last connection run was started. */
+    var lastTrigger: ConnectTrigger = ConnectTrigger.USER
+        private set
+
     /** Delivered so the caller can start the FGS before the tunnel exists (F2). */
     var onBeforeTunnelStart: (suspend () -> Unit)? = null
 
@@ -120,11 +124,17 @@ class ConnectionManager(
     }
 
     private suspend fun runConnectLoop(config: TunnelConfig, trigger: ConnectTrigger) {
+        lastTrigger = trigger
         setState(ConnectionState.Preparing)
 
         var attempt = 1
         while (true) {
-            setState(if (attempt == 1) ConnectionState.Connecting else _state.value)
+            // Only emit a state we are not already in: StateMachine rejects
+            // self-transitions, and re-emitting Reconnecting->Reconnecting on
+            // every retry would crash the check() below.
+            if (_state.value !is ConnectionState.Connecting) {
+                setState(ConnectionState.Connecting)
+            }
 
             val failure = attemptOnce(config)
 

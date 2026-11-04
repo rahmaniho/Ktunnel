@@ -5,6 +5,7 @@ import ir.karensoft.karentunnel.core.model.ConfigNormalizer
 import ir.karensoft.karentunnel.core.model.Ipv6Policy
 import ir.karensoft.karentunnel.core.model.ServerId
 import ir.karensoft.karentunnel.core.model.TunnelConfig
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.test.runTest
 import org.junit.Test
 
@@ -85,8 +86,9 @@ class ProbeEngineTest {
     @Test
     fun `run uses injected probes and records evidence`() = runTest {
         val engine = ProbeEngine(
-            io = this.coroutineContext[kotlinx.coroutines.CoroutineDispatcher]
-                ?: kotlinx.coroutines.Dispatchers.Unconfined,
+            // The injected probes never suspend, so Unconfined keeps the test
+            // deterministic without touching real sockets.
+            io = Dispatchers.Unconfined,
             clock = { 123L },
             dnsLookup = { listOf("203.0.113.9") },
             tcpProbe = { _, _, _ -> true },

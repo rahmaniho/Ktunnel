@@ -136,10 +136,13 @@ class WireGuardTunnelController(
     override suspend fun statistics(): TunnelStatistics {
         if (!active) return TunnelStatistics.EMPTY
         return try {
-            val stats = backend.statistics
-            // Statistics.peer(key) returns an immutable record (Java 16+).
+            // getStatistics(Tunnel) takes a parameter, so it is a method, not a
+            // property (unlike getVersion()). Verified against Backend.java.
+            val stats = backend.getStatistics(tunnel)
+            // Statistics.PeerStats is a Java record: components are read as
+            // properties from Kotlin, not as getter methods.
             val peer = stats.peers().firstOrNull()?.let { stats.peer(it) }
-            val age = peer?.latestHandshakeEpochMillis()?.takeIf { it > 0 }?.let {
+            val age = peer?.latestHandshakeEpochMillis?.takeIf { it > 0 }?.let {
                 // latestHandshakeEpochMillis is wall-clock; convert to an age.
                 (System.currentTimeMillis() - it).coerceAtLeast(0)
             }

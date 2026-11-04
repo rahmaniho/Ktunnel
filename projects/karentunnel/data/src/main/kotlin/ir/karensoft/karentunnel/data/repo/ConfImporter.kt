@@ -85,6 +85,10 @@ object ConfImporter {
         }
 
         val peer = peers.single()
+        // Note: DNS is deliberately NOT required here. ConfigNormalizer owns that
+        // rule and returns ConfigError.MissingDns, which maps to a specific
+        // Persian message ("برای جلوگیری از نشتی DNS، پیکربندی رد شد"). Failing
+        // earlier would produce a vaguer error for the same problem.
         val address = iface["address"] ?: return Result.failure(ConfigError.MissingAddress)
 
         return Result.success(
