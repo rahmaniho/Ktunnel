@@ -9,8 +9,8 @@ phase: implementation
 status: build-green, device-unverified
 last_green_run: 41807391493
 unit_tests: 68 passed / 0 failed
-apk_debug_bytes: 22110346
-apk_release_bytes: 5587284
+apk_debug_bytes: 28817797   # اندازهٔ واقعی APK در release
+apk_release_bytes: 11965302  # اندازهٔ واقعی APK در release
 device_evidence: none
 ```
 

@@ -14,8 +14,8 @@
 | --- | --- | --- |
 | کامپایل | ✅ | اجرای `41807391493` |
 | تست واحد | ✅ **۶۸ تست، ۰ شکست** | گام «Report test totals» در اجرای CI |
-| APK دیباگ | ✅ ۲۲٬۱۱۰٬۳۴۶ بایت | artifact `karentunnel-debug-apk` |
-| APK release (R8 + shrink) | ✅ ۵٬۵۸۷٬۲۸۴ بایت | artifact `karentunnel-release-apk-ci-signed` |
+| APK دیباگ | ✅ ۲۸٬۸۱۷٬۷۹۷ بایت | release `build-20261104-bf3c2ee` |
+| APK release (R8 + shrink) | ✅ ۱۱٬۹۶۵٬۳۰۲ بایت | release `build-20261104-bf3c2ee` |
 | Lint | ✅ بدون خطا | همان اجرا |
 | **اجرا روی دستگاه** | ❌ **هرگز** | — |
 | **تونل واقعی** | ❌ **هرگز** | — |
