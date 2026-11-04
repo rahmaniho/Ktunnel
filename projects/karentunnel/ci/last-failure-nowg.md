@@ -1,13 +1,8 @@
 # شکست کامپایل چهار ماژول کتابخانه‌ای
 
-- اجرا: https://github.com/rahmaniho/Ktunnel/actions/runs/41759854884
+- اجرا: https://github.com/rahmaniho/Ktunnel/actions/runs/41760140254
 
 ```
-> Task :data:compileDebugKotlin FAILED
-e: file:///home/runner/work/Ktunnel/Ktunnel/projects/karentunnel/data/src/main/kotlin/ir/karensoft/karentunnel/data/secure/SecureConfigStore.kt:163:1 Syntax error: Unclosed comment.
-e: file:///home/runner/work/Ktunnel/Ktunnel/projects/karentunnel/vpn/src/main/kotlin/ir/karensoft/karentunnel/vpn/controller/WireGuardTunnelController.kt:88:21 Unresolved reference 'fill'.
-> Task :vpn:compileDebugKotlin FAILED
-> Task :core:compileDebugUnitTestKotlin FAILED
 e: file:///home/runner/work/Ktunnel/Ktunnel/projects/karentunnel/core/src/test/kotlin/ir/karensoft/karentunnel/core/model/ConfigNormalizerTest.kt:5:43 Unresolved reference 'TestConfigs'.
 e: file:///home/runner/work/Ktunnel/Ktunnel/projects/karentunnel/core/src/test/kotlin/ir/karensoft/karentunnel/core/model/ConfigNormalizerTest.kt:18:49 Unresolved reference 'TestConfigs'.
 e: file:///home/runner/work/Ktunnel/Ktunnel/projects/karentunnel/core/src/test/kotlin/ir/karensoft/karentunnel/core/model/ConfigNormalizerTest.kt:29:49 Unresolved reference 'TestConfigs'.
@@ -36,17 +31,21 @@ e: file:///home/runner/work/Ktunnel/Ktunnel/projects/karentunnel/core/src/test/k
 e: file:///home/runner/work/Ktunnel/Ktunnel/projects/karentunnel/core/src/test/kotlin/ir/karensoft/karentunnel/core/model/ConfigNormalizerTest.kt:181:57 Unresolved reference 'TestConfigs'.
 e: file:///home/runner/work/Ktunnel/Ktunnel/projects/karentunnel/core/src/test/kotlin/ir/karensoft/karentunnel/core/model/ConfigNormalizerTest.kt:187:57 Unresolved reference 'TestConfigs'.
 e: file:///home/runner/work/Ktunnel/Ktunnel/projects/karentunnel/core/src/test/kotlin/ir/karensoft/karentunnel/core/model/ConfigNormalizerTest.kt:192:57 Unresolved reference 'TestConfigs'.
-Execution failed for task ':data:compileDebugKotlin'.
-org.gradle.api.tasks.TaskExecutionException: Execution failed for task ':data:compileDebugKotlin'.
-Execution failed for task ':vpn:compileDebugKotlin'.
-org.gradle.api.tasks.TaskExecutionException: Execution failed for task ':vpn:compileDebugKotlin'.
+> Task :core:compileDebugUnitTestKotlin FAILED
 Execution failed for task ':core:compileDebugUnitTestKotlin'.
 org.gradle.api.tasks.TaskExecutionException: Execution failed for task ':core:compileDebugUnitTestKotlin'.
-BUILD FAILED in 31s
+BUILD FAILED in 42s
 ```
 
 ```
-	at java.base/java.util.Optional.orElseGet(Optional.java:364)
+	at org.gradle.internal.execution.steps.HandleStaleOutputsStep.execute(HandleStaleOutputsStep.java:41)
+	at org.gradle.internal.execution.steps.AssignMutableWorkspaceStep.lambda$execute$0(AssignMutableWorkspaceStep.java:35)
+	at org.gradle.api.internal.tasks.execution.TaskExecution$4.withWorkspace(TaskExecution.java:289)
+	at org.gradle.internal.execution.steps.AssignMutableWorkspaceStep.execute(AssignMutableWorkspaceStep.java:31)
+	at org.gradle.internal.execution.steps.AssignMutableWorkspaceStep.execute(AssignMutableWorkspaceStep.java:22)
+	at org.gradle.internal.execution.steps.ChoosePipelineStep.execute(ChoosePipelineStep.java:40)
+	at org.gradle.internal.execution.steps.ChoosePipelineStep.execute(ChoosePipelineStep.java:23)
+	at org.gradle.internal.execution.steps.ExecuteWorkBuildOperationFiringStep.lambda$execute$2(ExecuteWorkBuildOperationFiringStep.java:67)
 	at org.gradle.internal.execution.steps.ExecuteWorkBuildOperationFiringStep.execute(ExecuteWorkBuildOperationFiringStep.java:67)
 	at org.gradle.internal.execution.steps.ExecuteWorkBuildOperationFiringStep.execute(ExecuteWorkBuildOperationFiringStep.java:39)
 	at org.gradle.internal.execution.steps.IdentityCacheStep.execute(IdentityCacheStep.java:46)
@@ -84,9 +83,6 @@ BUILD FAILED in 31s
 	at org.gradle.execution.plan.DefaultPlanExecutor$ExecutorWorker.run(DefaultPlanExecutor.java:376)
 	at org.gradle.internal.concurrent.ExecutorPolicy$CatchAndRecordFailures.onExecute(ExecutorPolicy.java:64)
 	at org.gradle.internal.concurrent.AbstractManagedExecutor$1.run(AbstractManagedExecutor.java:48)
-	at java.base/java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1136)
-	at java.base/java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:635)
-	at java.base/java.lang.Thread.run(Thread.java:840)
 Caused by: org.jetbrains.kotlin.gradle.tasks.CompilationErrorException: Compilation error. See log for more details
 	at org.jetbrains.kotlin.gradle.tasks.TasksUtilsKt.throwExceptionIfCompilationFailed(tasksUtils.kt:21)
 	at org.jetbrains.kotlin.compilerRunner.GradleKotlinCompilerWork.run(GradleKotlinCompilerWork.kt:119)
@@ -108,7 +104,6 @@ Caused by: org.jetbrains.kotlin.gradle.tasks.CompilationErrorException: Compilat
 	at org.gradle.workers.internal.AbstractWorker.executeWrappedInBuildOperation(AbstractWorker.java:41)
 	at org.gradle.workers.internal.NoIsolationWorkerFactory$1.execute(NoIsolationWorkerFactory.java:59)
 	at org.gradle.workers.internal.DefaultWorkerExecutor.lambda$submitWork$0(DefaultWorkerExecutor.java:174)
-	at java.base/java.util.concurrent.FutureTask.run(FutureTask.java:264)
 	at org.gradle.internal.work.DefaultConditionalExecutionQueue$ExecutionRunner.runExecution(DefaultConditionalExecutionQueue.java:194)
 	at org.gradle.internal.work.DefaultConditionalExecutionQueue$ExecutionRunner.access$700(DefaultConditionalExecutionQueue.java:127)
 	at org.gradle.internal.work.DefaultConditionalExecutionQueue$ExecutionRunner$1.run(DefaultConditionalExecutionQueue.java:169)
@@ -118,12 +113,9 @@ Caused by: org.jetbrains.kotlin.gradle.tasks.CompilationErrorException: Compilat
 	at org.gradle.internal.work.DefaultWorkerLeaseService.runAsWorkerThread(DefaultWorkerLeaseService.java:132)
 	at org.gradle.internal.work.DefaultConditionalExecutionQueue$ExecutionRunner.runBatch(DefaultConditionalExecutionQueue.java:164)
 	at org.gradle.internal.work.DefaultConditionalExecutionQueue$ExecutionRunner.run(DefaultConditionalExecutionQueue.java:133)
-	at java.base/java.util.concurrent.Executors$RunnableAdapter.call(Executors.java:539)
-	at java.base/java.util.concurrent.FutureTask.run(FutureTask.java:264)
-	... 5 more
+	... 2 more
 
-==============================================================================
 
-BUILD FAILED in 31s
+BUILD FAILED in 42s
 44 actionable tasks: 35 executed, 9 from cache
 ```
