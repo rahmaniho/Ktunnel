@@ -1,23 +1,41 @@
 # آخرین خروجی ناموفق CI
 
-- اجرا: https://github.com/rahmaniho/Ktunnel/actions/runs/41765886354
-- کامیت: `d88f2c1ff593aebe1ff3cee4b3e01a909aff1244`
-- زمان: 2026-11-04T03:19:05Z
+- اجرا: https://github.com/rahmaniho/Ktunnel/actions/runs/41805768239
+- کامیت: `6d7e03e408de6bf319c01f2df09354cb87cc4095`
+- زمان: 2026-11-04T09:14:52Z
 
 ## خطاهای کامپایلر
 
 ```
-> Task :app:lintDebug FAILED
+> Task :app:compileDebugKotlin FAILED
+e: file:///home/runner/work/Ktunnel/Ktunnel/projects/karentunnel/app/src/main/kotlin/ir/karensoft/karentunnel/ui/common/Components.kt:128:44 Unresolved reference 'Degraded'.
+e: file:///home/runner/work/Ktunnel/Ktunnel/projects/karentunnel/app/src/main/kotlin/ir/karensoft/karentunnel/ui/common/Components.kt:133:44 Unresolved reference 'Degraded'.
+e: file:///home/runner/work/Ktunnel/Ktunnel/projects/karentunnel/app/src/main/kotlin/ir/karensoft/karentunnel/ui/diagnostics/DiagnosticsScreen.kt:62:18 None of the following candidates is applicable:
+e: file:///home/runner/work/Ktunnel/Ktunnel/projects/karentunnel/app/src/main/kotlin/ir/karensoft/karentunnel/ui/servers/ServersScreen.kt:82:33 None of the following candidates is applicable:
+e: file:///home/runner/work/Ktunnel/Ktunnel/projects/karentunnel/app/src/main/kotlin/ir/karensoft/karentunnel/ui/settings/SettingsScreen.kt:55:18 None of the following candidates is applicable:
+> Task :data:testDebugUnitTest FAILED
+ServerRepositoryTest > derived id cannot contain path characters FAILED
 * What went wrong:
-Execution failed for task ':app:lintDebug'.
-org.gradle.api.tasks.TaskExecutionException: Execution failed for task ':app:lintDebug'.
-Caused by: java.lang.RuntimeException: Lint found errors in the project; aborting build.
-BUILD FAILED in 53s
+Execution failed for task ':app:compileDebugKotlin'.
+org.gradle.api.tasks.TaskExecutionException: Execution failed for task ':app:compileDebugKotlin'.
+Caused by: org.gradle.workers.internal.DefaultWorkerExecutor$WorkExecutionException: A failure occurred while executing org.jetbrains.kotlin.compilerRunner.GradleCompilerRunnerWithWorkers$GradleKotlinCompilerWorkAction
+Caused by: org.jetbrains.kotlin.gradle.tasks.CompilationErrorException: Compilation error. See log for more details
+* What went wrong:
+Execution failed for task ':data:testDebugUnitTest'.
+org.gradle.api.tasks.TaskExecutionException: Execution failed for task ':data:testDebugUnitTest'.
+Caused by: org.gradle.api.internal.exceptions.MarkedVerificationException: There were failing tests. See the report at: file:///home/runner/work/Ktunnel/Ktunnel/projects/karentunnel/data/build/reports/tests/testDebugUnitTest/index.html
+BUILD FAILED in 23s
 ```
 
 ## تست‌های ناموفق
 
 ```
+<testcase name="invalid config is refused and nothing is written" classname="ir.karensoft.karentunnel.data.repo.ServerRepositoryTest"
+<testcase name="derived id is stable for the same endpoint" classname="ir.karensoft.karentunnel.data.repo.ServerRepositoryTest"
+<testcase name="one unreadable file does not hide the readable ones" classname="ir.karensoft.karentunnel.data.repo.ServerRepositoryTest"
+<testcase name="derived id cannot contain path characters" classname="ir.karensoft.karentunnel.data.repo.ServerRepositoryTest"
+<testcase name="deleting removes it from the snapshot" classname="ir.karensoft.karentunnel.data.repo.ServerRepositoryTest"
+<testcase name="import stores a readable server" classname="ir.karensoft.karentunnel.data.repo.ServerRepositoryTest"
 <testcase name="round trip preserves every field" classname="ir.karensoft.karentunnel.data.secure.FileSecureConfigStoreTest"
 <testcase name="file on disk does not contain the private key" classname="ir.karensoft.karentunnel.data.secure.FileSecureConfigStoreTest"
 <testcase name="load of missing config fails cleanly" classname="ir.karensoft.karentunnel.data.secure.FileSecureConfigStoreTest"
@@ -72,14 +90,9 @@ BUILD FAILED in 53s
 <testcase name="unreachable endpoint is probable with low confidence" classname="ir.karensoft.karentunnel.diagnostics.ProbeEngineTest"
 <testcase name="permission failure goes terminal without retry" classname="ir.karensoft.karentunnel.vpn.connection.ConnectionManagerTest"
 <testcase name="missing system vpn network prevents connected" classname="ir.karensoft.karentunnel.vpn.connection.ConnectionManagerTest"
-<testcase name="stale handshake is degraded" classname="ir.karensoft.karentunnel.vpn.connection.ConnectionManagerTest"
-<testcase name="health loop demotes a connected tunnel when the handshake goes stale" classname="ir.karensoft.karentunnel.vpn.connection.ConnectionManagerTest"
-<testcase name="becomes connected only when all evidence is present" classname="ir.karensoft.karentunnel.vpn.connection.ConnectionManagerTest"
-<testcase name="transient failure retries a bounded number of times" classname="ir.karensoft.karentunnel.vpn.connection.ConnectionManagerTest"
-<testcase name="tunnel up without handshake is degraded not connected" classname="ir.karensoft.karentunnel.vpn.connection.ConnectionManagerTest"
-<testcase name="external teardown disconnects safely" classname="ir.karensoft.karentunnel.vpn.connection.ConnectionManagerTest"
 
 --- failure messages ---
+message="value of               : fromEndpoint-fD-TNW4(...)&#10;expected not to contain: ..&#10;but was                : wg-..-..-etc-passwd-1"
 
 --- stdout / assertion traces ---
 ```
@@ -87,131 +100,11 @@ BUILD FAILED in 53s
 ## خطاهای Lint
 
 ```
-message="Not targeting the latest versions of Android; compatibility modes apply. Consider testing and updating this version. Consult the `android.os.Build.VERSION_CODES` javadoc for details."
-message="Not targeting the latest versions of Android; compatibility modes apply. Consider testing and updating this version. Consult the `android.os.Build.VERSION_CODES` javadoc for details."
-message="foregroundServiceType:systemExempted requires permission:[android.permission.FOREGROUND_SERVICE_SYSTEM_EXEMPTED] AND any permission in list:[android.permission.SCHEDULE_EXACT_ALARM, android.permission.USE_EXACT_ALARM]"
-message="A newer version of Gradle than 8.13 is available: 8.14.6"
-message="A newer version of com.android.application than 8.13.2 is available: 9.5.0"
-message="A newer version of com.android.library than 8.13.2 is available: 9.5.0"
-message="A newer version of androidx.core:core-ktx than 1.15.0 is available: 1.19.1"
-message="A newer version of androidx.activity:activity-compose than 1.10.1 is available: 1.13.0"
-message="A newer version of androidx.lifecycle:lifecycle-runtime-compose than 2.9.1 is available: 2.11.0"
-message="A newer version of androidx.lifecycle:lifecycle-runtime-ktx than 2.9.1 is available: 2.11.0"
-message="A newer version of androidx.lifecycle:lifecycle-viewmodel-compose than 2.9.1 is available: 2.11.0"
-message="A newer version of androidx.compose:compose-bom than 2025.06.01 is available: 2026.09.00"
-message="A newer version of androidx.datastore:datastore-preferences than 1.1.7 is available: 1.3.0"
-message="A newer version of androidx.annotation:annotation than 1.9.1 is available: 1.11.0"
-message="A newer version of androidx.collection:collection than 1.5.0 is available: 1.7.0"
-message="A newer version of androidx.test.ext:junit than 1.2.1 is available: 1.3.0"
-message="A newer version of androidx.test.espresso:espresso-core than 3.6.1 is available: 3.7.0"
-message="A newer version of org.jetbrains.kotlin.android than 2.1.20 is available: 2.4.21"
-message="A newer version of org.jetbrains.kotlin.plugin.compose than 2.1.20 is available: 2.4.21"
-message="A newer version of org.jetbrains.kotlin.plugin.serialization than 2.1.20 is available: 2.4.21"
-message="A newer version of org.jetbrains.kotlinx:kotlinx-coroutines-android than 1.10.2 is available: 1.11.0"
-message="A newer version of org.jetbrains.kotlinx:kotlinx-coroutines-core than 1.10.2 is available: 1.11.0"
-message="A newer version of org.jetbrains.kotlinx:kotlinx-serialization-json than 1.8.1 is available: 1.12.0"
-message="A newer version of com.google.truth:truth than 1.4.4 is available: 1.4.5"
-message="A newer version of io.mockk:mockk than 1.14.2 is available: 1.14.11"
-message="A newer version of org.jetbrains.kotlinx:kotlinx-coroutines-test than 1.10.2 is available: 1.11.0"
-message="A newer version of org.robolectric:robolectric than 4.14.1 is available: 4.17"
-message="A newer version of app.cash.turbine:turbine than 1.2.0 is available: 1.2.1"
-message="Unnecessary; `SDK_INT` is always >= 26"
-message="This folder configuration (`v26`) is unnecessary; `minSdkVersion` is 26. Merge all the resources in this folder into `mipmap-anydpi`."
-message="The resource `R.string.about_version` appears to be unused"
-message="The resource `R.string.about_backend` appears to be unused"
-message="The resource `R.string.about_licenses` appears to be unused"
-message="The resource `R.string.about_security_note` appears to be unused"
-message="The application adaptive icon is missing a monochrome tag"
-==> ./data/build/reports/lint-results-debug.txt <==
-No issues found.
-
-==> ./core/build/reports/lint-results-debug.txt <==
-No issues found.
-
-==> ./app/build/reports/lint-results-debug.txt <==
-/home/runner/work/Ktunnel/Ktunnel/projects/karentunnel/app/build.gradle.kts:15: Warning: Not targeting the latest versions of Android; compatibility modes apply. Consider testing and updating this version. Consult the android.os.Build.VERSION_CODES javadoc for details. [OldTargetApi]
-        targetSdk = libs.versions.targetSdk.get().toInt()
-        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-/home/runner/work/Ktunnel/Ktunnel/projects/karentunnel/gradle/libs.versions.toml:14: Warning: Not targeting the latest versions of Android; compatibility modes apply. Consider testing and updating this version. Consult the android.os.Build.VERSION_CODES javadoc for details. [OldTargetApi]
-targetSdk = "35"
-            ~~~~
-
-   Explanation for issues of type "OldTargetApi":
-   When your application or sdk runs on a version of Android that is more
-   recent than your targetSdkVersion specifies that it has been tested with,
-   various compatibility modes kick in. This ensures that your application
-   continues to work, but it may look out of place. For example, if the
-   targetSdkVersion is less than 14, your app may get an option button in the
-   UI.
-
-   To fix this issue, set the targetSdkVersion to the highest available value.
-   Then test your app to make sure everything works correctly. You may want to
-   consult the compatibility notes to see what changes apply to each version
-   you are adding support for:
-   https://developer.android.com/reference/android/os/Build.VERSION_CODES.html
-   as well as follow this guide:
-   https://developer.android.com/distribute/best-practices/develop/target-sdk.
-   html
-
-   https://developer.android.com/distribute/best-practices/develop/target-sdk.html
-
-/home/runner/work/Ktunnel/Ktunnel/projects/karentunnel/app/src/main/AndroidManifest.xml:58: Error: foregroundServiceType:systemExempted requires permission:[android.permission.FOREGROUND_SERVICE_SYSTEM_EXEMPTED] AND any permission in list:[android.permission.SCHEDULE_EXACT_ALARM, android.permission.USE_EXACT_ALARM] [ForegroundServicePermission]
-        <service
-        ^
-
-   Explanation for issues of type "ForegroundServicePermission":
-   For targetSdkVersion >= 34, each foregroundServiceType listed in the
-   <service> element requires specific sets of permissions to be declared in
-   the manifest. If permissions are missing, then when the foreground service
-   is started with a foregroundServiceType that has missing permissions, a
-   SecurityException will be thrown.
-
-/home/runner/work/Ktunnel/Ktunnel/projects/karentunnel/gradle/wrapper/gradle-wrapper.properties:3: Warning: A newer version of Gradle than 8.13 is available: 8.14.6 [AndroidGradlePluginVersion]
-distributionUrl=https\://services.gradle.org/distributions/gradle-8.13-bin.zip
-                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-/home/runner/work/Ktunnel/Ktunnel/projects/karentunnel/gradle/libs.versions.toml:7: Warning: A newer version of com.android.application than 8.13.2 is available: 9.5.0 [AndroidGradlePluginVersion]
-agp = "8.13.2"
-      ~~~~~~~~
-/home/runner/work/Ktunnel/Ktunnel/projects/karentunnel/gradle/libs.versions.toml:7: Warning: A newer version of com.android.library than 8.13.2 is available: 9.5.0 [AndroidGradlePluginVersion]
-agp = "8.13.2"
-      ~~~~~~~~
-
-   Explanation for issues of type "AndroidGradlePluginVersion":
-   This detector looks for usage of the Android Gradle Plugin where the
-   version you are using is not the current stable release. Using older
-   versions is fine, and there are cases where you deliberately want to stick
-   with an older version. However, you may simply not be aware that a more
-   recent version is available, and that is what this lint check helps find.
-
-/home/runner/work/Ktunnel/Ktunnel/projects/karentunnel/gradle/libs.versions.toml:24: Warning: A newer version of androidx.core:core-ktx than 1.15.0 is available: 1.19.1 [GradleDependency]
-coreKtx = "1.15.0"
-          ~~~~~~~~
-/home/runner/work/Ktunnel/Ktunnel/projects/karentunnel/gradle/libs.versions.toml:25: Warning: A newer version of androidx.activity:activity-compose than 1.10.1 is available: 1.13.0 [GradleDependency]
-activityCompose = "1.10.1"
-                  ~~~~~~~~
-
-==> ./diagnostics/build/reports/lint-results-debug.txt <==
-No issues found.
-
-==> ./vpn/build/reports/lint-results-debug.txt <==
-No issues found.
 ```
 
 ## ۱۲۰ خط آخر خروجی
 
 ```
-	at org.gradle.api.internal.project.taskfactory.StandardTaskAction.execute(StandardTaskAction.java:51)
-	at org.gradle.api.internal.project.taskfactory.StandardTaskAction.execute(StandardTaskAction.java:29)
-	at org.gradle.api.internal.tasks.execution.TaskExecution$3.run(TaskExecution.java:244)
-	at org.gradle.internal.operations.DefaultBuildOperationRunner$1.execute(DefaultBuildOperationRunner.java:30)
-	at org.gradle.internal.operations.DefaultBuildOperationRunner$1.execute(DefaultBuildOperationRunner.java:27)
-	at org.gradle.internal.operations.DefaultBuildOperationRunner$2.execute(DefaultBuildOperationRunner.java:67)
-	at org.gradle.internal.operations.DefaultBuildOperationRunner$2.execute(DefaultBuildOperationRunner.java:60)
-	at org.gradle.internal.operations.DefaultBuildOperationRunner.execute(DefaultBuildOperationRunner.java:167)
-	at org.gradle.internal.operations.DefaultBuildOperationRunner.execute(DefaultBuildOperationRunner.java:60)
-	at org.gradle.internal.operations.DefaultBuildOperationRunner.run(DefaultBuildOperationRunner.java:48)
-	at org.gradle.api.internal.tasks.execution.TaskExecution.executeAction(TaskExecution.java:229)
-	at org.gradle.api.internal.tasks.execution.TaskExecution.executeActions(TaskExecution.java:212)
 	at org.gradle.api.internal.tasks.execution.TaskExecution.executeWithPreviousOutputFiles(TaskExecution.java:195)
 	at org.gradle.api.internal.tasks.execution.TaskExecution.execute(TaskExecution.java:162)
 	at org.gradle.internal.execution.steps.ExecuteStep.executeInternal(ExecuteStep.java:105)
@@ -241,8 +134,14 @@ No issues found.
 	at org.gradle.internal.execution.steps.ResolveInputChangesStep.execute(ResolveInputChangesStep.java:40)
 	at org.gradle.internal.execution.steps.ResolveInputChangesStep.execute(ResolveInputChangesStep.java:29)
 	at org.gradle.internal.execution.steps.BuildCacheStep.executeWithoutCache(BuildCacheStep.java:189)
-	at org.gradle.internal.execution.steps.BuildCacheStep.lambda$execute$1(BuildCacheStep.java:75)
-	at org.gradle.internal.Either$Right.fold(Either.java:175)
+	at org.gradle.internal.execution.steps.BuildCacheStep.executeAndStoreInCache(BuildCacheStep.java:145)
+	at org.gradle.internal.execution.steps.BuildCacheStep.lambda$executeWithCache$4(BuildCacheStep.java:101)
+	at java.base/java.util.Optional.orElseGet(Optional.java:364)
+	at org.gradle.internal.execution.steps.BuildCacheStep.lambda$executeWithCache$5(BuildCacheStep.java:101)
+	at org.gradle.internal.Try$Success.map(Try.java:175)
+	at org.gradle.internal.execution.steps.BuildCacheStep.executeWithCache(BuildCacheStep.java:85)
+	at org.gradle.internal.execution.steps.BuildCacheStep.lambda$execute$0(BuildCacheStep.java:74)
+	at org.gradle.internal.Either$Left.fold(Either.java:115)
 	at org.gradle.internal.execution.caching.CachingState.fold(CachingState.java:62)
 	at org.gradle.internal.execution.steps.BuildCacheStep.execute(BuildCacheStep.java:73)
 	at org.gradle.internal.execution.steps.BuildCacheStep.execute(BuildCacheStep.java:48)
@@ -250,6 +149,7 @@ No issues found.
 	at org.gradle.internal.execution.steps.StoreExecutionStateStep.execute(StoreExecutionStateStep.java:35)
 	at org.gradle.internal.execution.steps.SkipUpToDateStep.executeBecause(SkipUpToDateStep.java:75)
 	at org.gradle.internal.execution.steps.SkipUpToDateStep.lambda$execute$2(SkipUpToDateStep.java:53)
+	at java.base/java.util.Optional.orElseGet(Optional.java:364)
 	at org.gradle.internal.execution.steps.SkipUpToDateStep.execute(SkipUpToDateStep.java:53)
 	at org.gradle.internal.execution.steps.SkipUpToDateStep.execute(SkipUpToDateStep.java:35)
 	at org.gradle.internal.execution.steps.legacy.MarkSnapshottingInputsFinishedStep.execute(MarkSnapshottingInputsFinishedStep.java:37)
@@ -265,7 +165,7 @@ No issues found.
 	at org.gradle.internal.execution.steps.AbstractCaptureStateBeforeExecutionStep.execute(AbstractCaptureStateBeforeExecutionStep.java:64)
 	at org.gradle.internal.execution.steps.AbstractCaptureStateBeforeExecutionStep.execute(AbstractCaptureStateBeforeExecutionStep.java:43)
 	at org.gradle.internal.execution.steps.AbstractSkipEmptyWorkStep.executeWithNonEmptySources(AbstractSkipEmptyWorkStep.java:125)
-	at org.gradle.internal.execution.steps.AbstractSkipEmptyWorkStep.execute(AbstractSkipEmptyWorkStep.java:56)
+	at org.gradle.internal.execution.steps.AbstractSkipEmptyWorkStep.execute(AbstractSkipEmptyWorkStep.java:61)
 	at org.gradle.internal.execution.steps.AbstractSkipEmptyWorkStep.execute(AbstractSkipEmptyWorkStep.java:36)
 	at org.gradle.internal.execution.steps.legacy.MarkSnapshottingInputsStartedStep.execute(MarkSnapshottingInputsStartedStep.java:38)
 	at org.gradle.internal.execution.steps.LoadPreviousExecutionStateStep.execute(LoadPreviousExecutionStateStep.java:36)
@@ -279,6 +179,7 @@ No issues found.
 	at org.gradle.internal.execution.steps.ChoosePipelineStep.execute(ChoosePipelineStep.java:40)
 	at org.gradle.internal.execution.steps.ChoosePipelineStep.execute(ChoosePipelineStep.java:23)
 	at org.gradle.internal.execution.steps.ExecuteWorkBuildOperationFiringStep.lambda$execute$2(ExecuteWorkBuildOperationFiringStep.java:67)
+	at java.base/java.util.Optional.orElseGet(Optional.java:364)
 	at org.gradle.internal.execution.steps.ExecuteWorkBuildOperationFiringStep.execute(ExecuteWorkBuildOperationFiringStep.java:67)
 	at org.gradle.internal.execution.steps.ExecuteWorkBuildOperationFiringStep.execute(ExecuteWorkBuildOperationFiringStep.java:39)
 	at org.gradle.internal.execution.steps.IdentityCacheStep.execute(IdentityCacheStep.java:46)
@@ -316,8 +217,12 @@ No issues found.
 	at org.gradle.execution.plan.DefaultPlanExecutor$ExecutorWorker.run(DefaultPlanExecutor.java:376)
 	at org.gradle.internal.concurrent.ExecutorPolicy$CatchAndRecordFailures.onExecute(ExecutorPolicy.java:64)
 	at org.gradle.internal.concurrent.AbstractManagedExecutor$1.run(AbstractManagedExecutor.java:48)
+	at java.base/java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1136)
+	at java.base/java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:635)
+	at java.base/java.lang.Thread.run(Thread.java:840)
 
+==============================================================================
 
-BUILD FAILED in 53s
-198 actionable tasks: 61 executed, 5 from cache, 132 up-to-date
+BUILD FAILED in 23s
+99 actionable tasks: 33 executed, 66 from cache
 ```
