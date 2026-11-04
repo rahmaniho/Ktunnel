@@ -1,23 +1,19 @@
 # آخرین خروجی ناموفق CI
 
-- اجرا: https://github.com/rahmaniho/Ktunnel/actions/runs/41762203584
-- کامیت: `439b3083e694cd3af8afa1078e59f8b9a99783a3`
-- زمان: 2026-11-04T02:46:19Z
+- اجرا: https://github.com/rahmaniho/Ktunnel/actions/runs/41762941240
+- کامیت: `8ea5c7c33d5b4ef46d8973210dbfbb5755f3360e`
+- زمان: 2026-11-04T02:48:26Z
 
 ## خطاهای کامپایلر
 
 ```
 ConnectionManagerTest > health loop demotes a connected tunnel when the handshake goes stale FAILED
-ConnectionManagerTest > becomes connected only when all evidence is present FAILED
-ConnectionManagerTest > external teardown disconnects safely FAILED
-ConnectionManagerTest > disconnect tears the tunnel down and clears state FAILED
-ConnectionManagerTest > double connect does not start two tunnels FAILED
 > Task :vpn:testDebugUnitTest FAILED
 * What went wrong:
 Execution failed for task ':vpn:testDebugUnitTest'.
 org.gradle.api.tasks.TaskExecutionException: Execution failed for task ':vpn:testDebugUnitTest'.
 Caused by: org.gradle.api.internal.exceptions.MarkedVerificationException: There were failing tests. See the report at: file:///home/runner/work/Ktunnel/Ktunnel/projects/karentunnel/vpn/build/reports/tests/testDebugUnitTest/index.html
-BUILD FAILED in 6m 7s
+BUILD FAILED in 1m 16s
 ```
 
 ## تست‌های ناموفق
@@ -85,11 +81,7 @@ BUILD FAILED in 6m 7s
 <testcase name="external teardown disconnects safely" classname="ir.karensoft.karentunnel.vpn.connection.ConnectionManagerTest"
 
 --- failure messages ---
-message="kotlinx.coroutines.test.UncompletedCoroutinesError: After waiting for 1m, the test body did not run to completion"
-message="kotlinx.coroutines.test.UncompletedCoroutinesError: After waiting for 1m, the test body did not run to completion"
-message="kotlinx.coroutines.test.UncompletedCoroutinesError: After waiting for 1m, the test body did not run to completion"
-message="kotlinx.coroutines.test.UncompletedCoroutinesError: After waiting for 1m, the test body did not run to completion"
-message="kotlinx.coroutines.test.UncompletedCoroutinesError: After waiting for 1m, the test body did not run to completion"
+message="expected instance of: ir.karensoft.karentunnel.core.connection.ConnectionState$Degraded&#10;but was instance of : ir.karensoft.karentunnel.core.connection.ConnectionState$Connected&#10;with value          : Connected(sinceMillis=1793760497869)"
 
 --- stdout / assertion traces ---
 ```
@@ -215,6 +207,6 @@ message="kotlinx.coroutines.test.UncompletedCoroutinesError: After waiting for 1
 	at org.gradle.internal.concurrent.AbstractManagedExecutor$1.run(AbstractManagedExecutor.java:48)
 
 
-BUILD FAILED in 6m 7s
-103 actionable tasks: 83 executed, 20 from cache
+BUILD FAILED in 1m 16s
+100 actionable tasks: 82 executed, 18 from cache
 ```
