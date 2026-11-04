@@ -65,10 +65,41 @@ jobs:
           ./gradlew --version
 
       - name: Unit tests (all modules)
-        run: ./gradlew testDebugUnitTest --stacktrace
+        id: tests
+        run: |
+          set +e
+          ./gradlew testDebugUnitTest --stacktrace 2>&1 | tee /tmp/gradle.log
+          status=${PIPESTATUS[0]}
+          if [ "$status" -ne 0 ]; then
+            echo "::error::gradle failed with status $status"
+          fi
+          exit "$status"
+
+      - name: Report failure details as a commit status
+        if: failure()
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          # The sandbox this repo is developed in cannot download Actions logs,
+          # so the first actionable errors are surfaced in the commit status.
+          msg=$(grep -E '(^e: |error:|FAILED|Execution failed for task|Cause:)' /tmp/gradle.log 2>/dev/null | head -18 | tr '\n' ' ' | cut -c1-920)
+          [ -z "$msg" ] && msg="gradle failed before producing diagnostics; see artifacts/test-results"
+          gh api -X POST "repos/${GITHUB_REPOSITORY}/statuses/${GITHUB_SHA}" \
+            -f state=failure -f context=android-ci/errors -f description="$msg" >/dev/null || true
 
       - name: Assemble debug APK
-        run: ./gradlew assembleDebug --stacktrace
+        run: |
+          set +e
+          ./gradlew assembleDebug --stacktrace 2>&1 | tee -a /tmp/gradle.log
+          status=${PIPESTATUS[0]}
+          if [ "$status" -ne 0 ]; then
+            msg=$(grep -E '(^e: |error:|FAILED|Execution failed for task)' /tmp/gradle.log | tail -18 | tr '\n' ' ' | cut -c1-920)
+            gh api -X POST "repos/${GITHUB_REPOSITORY}/statuses/${GITHUB_SHA}" \
+              -f state=failure -f context=android-ci/errors -f description="$msg" >/dev/null || true
+          fi
+          exit "$status"
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Lint (release-blocking)
         run: ./gradlew lintDebug --stacktrace
