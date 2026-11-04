@@ -64,7 +64,13 @@ class ConnectionStateMachineTest {
     fun `degraded is treated as protected but is not success`() {
         val degraded = ConnectionState.Degraded(DegradedReason.StaleHandshake, 300_000)
         assertThat(ConnectionState.isProtected(degraded)).isTrue()
-        assertThat(degraded is ConnectionState.Connected).isFalse()
+        // Widen to the supertype before the type test: comparing a Degraded value
+        // against the unrelated sibling Connected is statically always false and
+        // the compiler rejects the tautology under -Werror. The property being
+        // asserted (a degraded tunnel is protected but must never be reported as
+        // Connected) is about the hierarchy, so check it at that level.
+        val asState: ConnectionState = degraded
+        assertThat(asState is ConnectionState.Connected).isFalse()
     }
 
     // ------------------------------------------------------------------ backoff

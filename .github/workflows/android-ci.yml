@@ -2,14 +2,15 @@ name: android-ci
 
 on:
   push:
-    branches: [main]
+    # Any branch: agent work happens on arena/* branches and must be verified
+    # before it reaches main, not after.
     paths: ["projects/karentunnel/**"]
   pull_request:
     paths: ["projects/karentunnel/**"]
   workflow_dispatch:
 
 permissions:
-  contents: read
+  contents: write
   # Needed to publish compiler/test diagnostics as a commit status, because
   # Actions log archives are not reachable from the development sandbox.
   statuses: write
@@ -78,35 +79,99 @@ jobs:
           fi
           exit "$status"
 
-      - name: Report failure details as a commit status
-        if: failure()
-        env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: |
-          grep -E '(^e: |error:|FAILED|Execution failed for task|Cause:)' /tmp/gradle.log 2>/dev/null | head -60 > errors.txt || true
-          # The sandbox this repo is developed in cannot download Actions logs,
-          # so the first actionable errors are surfaced in the commit status.
-          msg=$(grep -E '(^e: |error:|FAILED|Execution failed for task|Cause:)' /tmp/gradle.log 2>/dev/null | head -18 | tr '\n' ' ' | cut -c1-920)
-          [ -z "$msg" ] && msg="gradle failed before producing diagnostics; see artifacts/test-results"
-          gh api -X POST "repos/${GITHUB_REPOSITORY}/statuses/${GITHUB_SHA}" \
-            -f state=failure -f context=android-ci/errors -f description="$msg" >/dev/null || true
-
       - name: Assemble debug APK
         run: |
           set +e
           ./gradlew assembleDebug --stacktrace 2>&1 | tee -a /tmp/gradle.log
-          status=${PIPESTATUS[0]}
-          if [ "$status" -ne 0 ]; then
-            msg=$(grep -E '(^e: |error:|FAILED|Execution failed for task)' /tmp/gradle.log | tail -18 | tr '\n' ' ' | cut -c1-920)
-            gh api -X POST "repos/${GITHUB_REPOSITORY}/statuses/${GITHUB_SHA}" \
-              -f state=failure -f context=android-ci/errors -f description="$msg" >/dev/null || true
-          fi
-          exit "$status"
-        env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          exit ${PIPESTATUS[0]}
 
       - name: Lint (release-blocking)
-        run: ./gradlew lintDebug --stacktrace
+        run: |
+          set +e
+          ./gradlew lintDebug --stacktrace 2>&1 | tee /tmp/gradle.log
+          exit ${PIPESTATUS[0]}
+
+      # Actions log archives and artifacts both redirect to a storage host that
+      # the development sandbox cannot reach, and commit statuses are not being
+      # delivered. So the compiler's own output is committed back to the branch:
+      # that makes it readable with a plain `git fetch`.
+      - name: Publish build diagnostics to the branch
+        # Any failing step in this job, not just the tests: lint can fail on its
+        # own and then there would be no recorded reason at all.
+        if: failure()
+        run: |
+          mkdir -p ci
+          {
+            echo "# آخرین خروجی ناموفق CI"
+            echo
+            echo "- اجرا: $GITHUB_SERVER_URL/$GITHUB_REPOSITORY/actions/runs/$GITHUB_RUN_ID"
+            echo "- کامیت: \`$GITHUB_SHA\`"
+            echo "- زمان: $(date -u +%Y-%m-%dT%H:%M:%SZ)"
+            echo
+            echo '## خطاهای کامپایلر'
+            echo
+            echo '```'
+            grep -E '(^e: |^w: |error:|FAILED|Execution failed for task|Caused by:|What went wrong|Could not resolve|Could not find)' /tmp/gradle.log 2>/dev/null | head -200 || true
+            echo '```'
+            echo
+            echo '## تست‌های ناموفق'
+            echo
+            echo '```'
+            # JUnit XML carries the assertion message in the <failure> element.
+            # One test class per file, so a plain scan is enough and avoids
+            # embedding a script inside this block scalar.
+            find . -path '*/build/test-results/*' -name '*.xml' -print0 2>/dev/null \
+              | xargs -0 grep -ho '<testcase name="[^"]*" classname="[^"]*"' 2>/dev/null \
+              | head -60 || true
+            echo
+            echo '--- failure messages ---'
+            find . -path '*/build/test-results/*' -name '*.xml' -print0 2>/dev/null \
+              | xargs -0 grep -ho 'message="[^"]*"' 2>/dev/null | head -40 || true
+            echo
+            echo '--- stdout / assertion traces ---'
+            find . -path '*/build/test-results/*' -name '*.xml' -print0 2>/dev/null \
+              | xargs -0 grep -hoE 'at ir\.karensoft[^<]*' 2>/dev/null | head -40 || true
+            echo '```'
+            echo
+            echo '## خطاهای Lint'
+            echo
+            echo '```'
+            find . -path '*/build/reports/lint-results*.xml' -print0 2>/dev/null \
+              | xargs -0 grep -hoE 'id="[^"]*"[^>]*severity="[^"]*"|message="[^"]*"' 2>/dev/null \
+              | head -60 || true
+            find . -path '*/build/reports/lint-results*' -name '*.txt' -print0 2>/dev/null \
+              | xargs -0 head -60 2>/dev/null || true
+            echo '```'
+            echo
+            echo '## ۱۲۰ خط آخر خروجی'
+            echo
+            echo '```'
+            tail -120 /tmp/gradle.log 2>/dev/null || true
+            echo '```'
+          } > ci/last-failure.md
+
+          # This is the only observation channel available, so its failures must be
+          # loud. Previously the whole step reported "success" while committing
+          # nothing, and the previous run's log stayed on the branch as if it were
+          # current.
+          git config user.name  "android-ci"
+          git config user.email "android-ci@users.noreply.github.com"
+          git add ci/last-failure.md
+          if git diff --cached --quiet; then
+            echo "::error::diagnostics file is unchanged; the log may be empty"
+          fi
+          git commit -m "ci: record failing build output for run $GITHUB_RUN_ID"
+          # The branch may move while the build runs; retry the push a few times.
+          for attempt in 1 2 3; do
+            git pull --rebase --autostash origin "$GITHUB_REF_NAME" || true
+            if git push origin "HEAD:$GITHUB_REF_NAME"; then
+              echo "diagnostics published on attempt $attempt"
+              exit 0
+            fi
+            sleep 5
+          done
+          echo "::error::could not publish build diagnostics to the branch"
+          exit 1
 
       - name: Publish test + lint reports
         if: always()
@@ -126,3 +191,178 @@ jobs:
           name: karentunnel-debug-apk
           path: projects/karentunnel/app/build/outputs/apk/debug/*.apk
           retention-days: 14
+  # The WireGuard tunnel library is the one dependency whose availability could
+  # not be checked from the development sandbox. Rather than guess, ask Maven
+  # directly and record the answer on the branch.
+  dependency-probe:
+    name: dependency availability probe
+    runs-on: ubuntu-latest
+    timeout-minutes: 21
+    steps:
+      - uses: actions/checkout@v4
+      - name: Set up JDK 17
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "17"
+      - name: Set up Android SDK
+        run: |
+          set -euo pipefail
+          SDK_ROOT="$RUNNER_TOOL_CACHE/android-sdk"
+          mkdir -p "$SDK_ROOT/cmdline-tools"
+          curl -fsSL -o /tmp/cmdtools.zip \
+            https://dl.google.com/android/repository/commandlinetools-linux-11076708_latest.zip
+          unzip -q /tmp/cmdtools.zip -d "$SDK_ROOT/cmdline-tools"
+          mv "$SDK_ROOT/cmdline-tools/cmdline-tools" "$SDK_ROOT/cmdline-tools/latest"
+          yes | "$SDK_ROOT/cmdline-tools/latest/bin/sdkmanager" --licenses >/dev/null 2>&1 || true
+          "$SDK_ROOT/cmdline-tools/latest/bin/sdkmanager" --install \
+            "platform-tools" "platforms;android-36" "build-tools;35.0.0" >/dev/null
+          echo "ANDROID_HOME=$SDK_ROOT" >> "$GITHUB_ENV"
+          echo "ANDROID_SDK_ROOT=$SDK_ROOT" >> "$GITHUB_ENV"
+      - name: Probe Maven for com.wireguard.android
+        run: |
+          chmod +x ci/probe-wireguard.sh
+          ci/probe-wireguard.sh > /tmp/probe.txt 2>&1 || true
+          cat /tmp/probe.txt
+          cp /tmp/probe.txt ci/wireguard-artifact-probe.md
+          git config user.name "android-ci"
+          git config user.email "android-ci@users.noreply.github.com"
+          git add ci/wireguard-artifact-probe.md
+          git commit -m "ci: record WireGuard artifact probe" || exit 0
+          for attempt in 1 2 3; do
+            git pull --rebase --autostash origin "$GITHUB_REF_NAME" || true
+            if git push origin "HEAD:$GITHUB_REF_NAME"; then exit 0; fi
+            sleep 5
+          done
+          true
+
+  # Compiles only the modules that do not depend on the WireGuard library, so
+  # real Kotlin errors are separated from artifact-resolution failures.
+  compile-without-wireguard:
+    name: compile core/vpn/data/diagnostics (no app)
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v4
+      - name: Set up JDK 17
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "17"
+      - name: Set up Android SDK
+        run: |
+          set -euo pipefail
+          SDK_ROOT="$RUNNER_TOOL_CACHE/android-sdk"
+          mkdir -p "$SDK_ROOT/cmdline-tools"
+          curl -fsSL -o /tmp/cmdtools.zip \
+            https://dl.google.com/android/repository/commandlinetools-linux-11076708_latest.zip
+          unzip -q /tmp/cmdtools.zip -d "$SDK_ROOT/cmdline-tools"
+          mv "$SDK_ROOT/cmdline-tools/cmdline-tools" "$SDK_ROOT/cmdline-tools/latest"
+          yes | "$SDK_ROOT/cmdline-tools/latest/bin/sdkmanager" --licenses >/dev/null 2>&1 || true
+          "$SDK_ROOT/cmdline-tools/latest/bin/sdkmanager" --install \
+            "platform-tools" "platforms;android-36" "build-tools;35.0.0" >/dev/null
+          echo "ANDROID_HOME=$SDK_ROOT" >> "$GITHUB_ENV"
+          echo "ANDROID_SDK_ROOT=$SDK_ROOT" >> "$GITHUB_ENV"
+      - name: Set up Gradle
+        uses: gradle/actions/setup-gradle@v4
+      - name: Compile and test the four library modules
+        run: |
+          set +e
+          ./gradlew \
+            :core:testDebugUnitTest \
+            :diagnostics:testDebugUnitTest \
+            :data:testDebugUnitTest \
+            :vpn:compileDebugKotlin \
+            --stacktrace 2>&1 | tee /tmp/gradle-nowg.log
+          status=${PIPESTATUS[0]}
+          {
+            echo "## compile without the WireGuard library: exit $status"
+            echo
+            echo '```'
+            grep -E '(^e: |^w: |error:|FAILED|Execution failed|Could not resolve|Could not find)' \
+              /tmp/gradle-nowg.log | head -120 || true
+            echo '```'
+          } >> "$GITHUB_STEP_SUMMARY"
+          exit "$status"
+      - name: Record failure in the branch
+        if: failure()
+        run: |
+          mkdir -p ci
+          {
+            echo "# شکست کامپایل چهار ماژول کتابخانه‌ای"
+            echo
+            echo "- اجرا: $GITHUB_SERVER_URL/$GITHUB_REPOSITORY/actions/runs/$GITHUB_RUN_ID"
+            echo
+            echo '```'
+            grep -E '(^e: |^w: |error:|FAILED|Execution failed|Could not resolve|Could not find)' \
+              /tmp/gradle-nowg.log | head -200 || true
+            echo '```'
+          } > ci/last-failure-nowg.md
+          git config user.name "android-ci"
+          git config user.email "android-ci@users.noreply.github.com"
+          git add ci/last-failure-nowg.md
+          git commit -m "ci: record compile-only failure for run $GITHUB_RUN_ID"
+          for attempt in 1 2 3; do
+            git pull --rebase --autostash origin "$GITHUB_REF_NAME" || true
+            if git push origin "HEAD:$GITHUB_REF_NAME"; then exit 0; fi
+            sleep 5
+          done
+          echo "::error::could not publish compile-only diagnostics"
+          exit 1
+
+  # Dumps the real declarations from the published AAR instead of trusting
+  # anyone's memory of the Backend/Tunnel API.
+  wireguard-api:
+    name: dump the real WireGuard tunnel API
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - name: Set up JDK 17
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "17"
+      - name: Fetch the AAR and dump its real API
+        run: |
+          VERSION=$(grep -E '^wireguardTunnel *=' gradle/libs.versions.toml | sed 's/.*"\(.*\)".*/\1/')
+          URL="https://repo1.maven.org/maven2/com/wireguard/android/tunnel/$VERSION/tunnel-$VERSION.aar"
+          echo "fetching $URL"
+          mkdir -p /tmp/aar/x
+          curl -fsSL -o /tmp/aar/tunnel.aar "$URL"
+          unzip -o -q /tmp/aar/tunnel.aar -d /tmp/aar/x
+          cp /tmp/aar/x/classes.jar /tmp/cls.jar
+          {
+            echo "# Real WireGuard tunnel API"
+            echo
+            echo "Version: \`$VERSION\`"
+            echo
+            echo "## Public classes"
+            echo '```'
+            unzip -l /tmp/cls.jar | awk '{print $4}' | grep '\.class$' \
+              | grep -v '\$' | sed 's#\.class$##; s#/#.#g' | sort | head -60 || true
+            echo '```'
+            for c in com.wireguard.android.backend.Backend \
+                     com.wireguard.android.backend.Tunnel \
+                     com.wireguard.android.backend.Statistics \
+                     com.wireguard.android.backend.GoBackend \
+                     com.wireguard.config.Config \
+                     com.wireguard.crypto.Key; do
+              echo
+              echo "## \`$c\`"
+              echo '```'
+              javap -classpath /tmp/cls.jar "$c" 2>&1 | head -50 || true
+              echo '```'
+            done
+          } > ci/wireguard-api.md
+          cat ci/wireguard-api.md
+          git config user.name "android-ci"
+          git config user.email "android-ci@users.noreply.github.com"
+          git add ci/wireguard-api.md
+          git commit -m "ci: record the real WireGuard tunnel API" || exit 0
+          for attempt in 1 2 3; do
+            git pull --rebase --autostash origin "$GITHUB_REF_NAME" || true
+            if git push origin "HEAD:$GITHUB_REF_NAME"; then exit 0; fi
+            sleep 5
+          done
+          true

@@ -7,9 +7,13 @@ import ir.karensoft.karentunnel.core.error.ConnectionError
 import ir.karensoft.karentunnel.core.model.ConfigNormalizer
 import ir.karensoft.karentunnel.core.model.ServerId
 import ir.karensoft.karentunnel.core.model.TunnelConfig
+import ir.karensoft.karentunnel.vpn.controller.TunnelController
 import ir.karensoft.karentunnel.vpn.controller.TunnelStatistics
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.test.advanceTimeBy
+import kotlinx.coroutines.test.runCurrent
 import kotlinx.coroutines.test.advanceUntilIdle
+import kotlinx.coroutines.test.TestScope
 import kotlinx.coroutines.test.runTest
 import org.junit.Test
 
@@ -28,10 +32,26 @@ class ConnectionManagerTest {
         ),
     ).getOrThrow()
 
+    /**
+     * The background confirmation loop is intentionally endless in production,
+     * so a test must park it: with the real 5 s period, runTest's virtual clock
+     * would keep advancing forever and every test would time out after 60 s.
+     * A one-hour period means the loop never completes during a test.
+     */
+    private fun TestScope.newManager(
+        controller: TunnelController,
+        healthProbe: HealthProbe? = null,
+    ) = ConnectionManager(
+        controller = controller,
+        scope = this,
+        healthProbe = healthProbe,
+        healthIntervalMillis = 3_600_000L,
+    )
+
     @Test
     fun `becomes connected only when all evidence is present`() = runTest {
         val controller = FakeTunnelController()
-        val manager = ConnectionManager(controller, this, healthProbe = FakeHealthProbe(true))
+        val manager = newManager(controller, FakeHealthProbe(true))
 
         manager.connect(config)
         advanceUntilIdle()
@@ -45,7 +65,7 @@ class ConnectionManagerTest {
         val controller = FakeTunnelController(
             statisticsAfterUp = TunnelStatistics(lastHandshakeAgeMillis = null),
         )
-        val manager = ConnectionManager(controller, this, healthProbe = FakeHealthProbe(true))
+        val manager = newManager(controller, FakeHealthProbe(true))
 
         manager.connect(config)
         advanceUntilIdle()
@@ -61,7 +81,7 @@ class ConnectionManagerTest {
         val controller = FakeTunnelController(
             statisticsAfterUp = TunnelStatistics(lastHandshakeAgeMillis = 600_000),
         )
-        val manager = ConnectionManager(controller, this, healthProbe = FakeHealthProbe(true))
+        val manager = newManager(controller, FakeHealthProbe(true))
 
         manager.connect(config)
         advanceUntilIdle()
@@ -72,7 +92,7 @@ class ConnectionManagerTest {
     @Test
     fun `missing system vpn network prevents connected`() = runTest {
         val controller = FakeTunnelController()
-        val manager = ConnectionManager(controller, this, healthProbe = FakeHealthProbe(false))
+        val manager = newManager(controller, FakeHealthProbe(false))
 
         manager.connect(config)
         advanceUntilIdle()
@@ -83,7 +103,7 @@ class ConnectionManagerTest {
     @Test
     fun `permission failure goes terminal without retry`() = runTest {
         val controller = FakeTunnelController(failWith = ConnectionError.PermissionRequired)
-        val manager = ConnectionManager(controller, this, healthProbe = FakeHealthProbe(true))
+        val manager = newManager(controller, FakeHealthProbe(true))
 
         manager.connect(config)
         advanceUntilIdle()
@@ -102,6 +122,7 @@ class ConnectionManagerTest {
             this,
             retryPolicy = policy,
             healthProbe = FakeHealthProbe(true),
+            healthIntervalMillis = 3_600_000L,
         )
 
         manager.connect(config)
@@ -112,9 +133,45 @@ class ConnectionManagerTest {
     }
 
     @Test
+    fun `health loop demotes a connected tunnel when the handshake goes stale`() = runTest {
+        val controller = FakeTunnelController()
+        val manager = ConnectionManager(
+            controller = controller,
+            scope = this,
+            healthProbe = FakeHealthProbe(true),
+            healthIntervalMillis = 1_000L,
+        )
+        val degradedReasons = mutableListOf<ir.karensoft.karentunnel.core.connection.DegradedReason>()
+        manager.onDegraded = { degradedReasons += it.reason }
+
+        manager.connect(config)
+
+        // The monitor is now a Timer. Stepping the clock a controlled amount is
+        // what lets the tunnel reach Connected without also draining every
+        // pending health tick: advanceUntilIdle() would run the whole bounded
+        // health loop while the peer is still healthy, and there would be
+        // nothing left to demote.
+        advanceTimeBy(500L)
+        runCurrent()
+        assertThat(manager.state.value).isInstanceOf(ConnectionState.Connected::class.java)
+
+        // The peer stops answering: no handshake is reported from now on.
+        controller.statisticsAfterUp = TunnelStatistics(lastHandshakeAgeMillis = null)
+        advanceTimeBy(1_500L)
+        runCurrent()
+
+        val state = manager.state.value
+        assertThat(state).isInstanceOf(ConnectionState.Degraded::class.java)
+        assertThat((state as ConnectionState.Degraded).reason)
+            .isEqualTo(ir.karensoft.karentunnel.core.connection.DegradedReason.NoHandshake)
+        // Fires exactly once, then the monitor stops; recovery is the caller's call.
+        assertThat(degradedReasons).hasSize(1)
+    }
+
+    @Test
     fun `disconnect tears the tunnel down and clears state`() = runTest {
         val controller = FakeTunnelController()
-        val manager = ConnectionManager(controller, this, healthProbe = FakeHealthProbe(true))
+        val manager = newManager(controller, FakeHealthProbe(true))
 
         manager.connect(config)
         advanceUntilIdle()
@@ -124,14 +181,14 @@ class ConnectionManagerTest {
         advanceUntilIdle()
 
         assertThat(manager.state.value).isEqualTo(ConnectionState.Disconnected)
-        assertThat(controller.isActive).isFalse()
+        assertThat(controller.isActive()).isFalse()
         assertThat(controller.downCalls).isAtLeast(1)
     }
 
     @Test
     fun `external teardown disconnects safely`() = runTest {
         val controller = FakeTunnelController()
-        val manager = ConnectionManager(controller, this, healthProbe = FakeHealthProbe(true))
+        val manager = newManager(controller, FakeHealthProbe(true))
 
         manager.connect(config)
         advanceUntilIdle()
@@ -140,13 +197,13 @@ class ConnectionManagerTest {
         advanceUntilIdle()
 
         assertThat(manager.state.value).isEqualTo(ConnectionState.Disconnected)
-        assertThat(controller.isActive).isFalse()
+        assertThat(controller.isActive()).isFalse()
     }
 
     @Test
     fun `double connect does not start two tunnels`() = runTest {
         val controller = FakeTunnelController()
-        val manager = ConnectionManager(controller, this, healthProbe = FakeHealthProbe(true))
+        val manager = newManager(controller, FakeHealthProbe(true))
 
         manager.connect(config)
         manager.connect(config)

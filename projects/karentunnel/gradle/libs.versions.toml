@@ -14,8 +14,12 @@ minSdk = "26"
 targetSdk = "35"
 
 # --- runtime dependencies ---
-# Aligned with the vendored upstream tunnel library (wireguardVersionName).
-wireguardTunnel = "1.0.20260315"
+# Highest version actually published to Maven Central, verified by querying
+# repo1.maven.org metadata in CI (see ci/wireguard-artifact-probe.md).
+# Do NOT bump this to an upstream tag without checking publication first: the
+# git tag 1.0.20260315 exists but was never published, and pinning it failed the
+# whole build with "Could not find com.wireguard.android:tunnel:1.0.20260315".
+wireguardTunnel = "1.0.20260102"
 coroutines = "1.10.2"
 coreKtx = "1.15.0"
 activityCompose = "1.10.1"
@@ -61,6 +65,8 @@ compose-ui-graphics = { module = "androidx.compose.ui:ui-graphics" }
 compose-ui-tooling = { module = "androidx.compose.ui:ui-tooling" }
 compose-ui-tooling-preview = { module = "androidx.compose.ui:ui-tooling-preview" }
 compose-material3 = { module = "androidx.compose.material3:material3" }
+# AnimatedContent/AnimatedVisibility live in their own artifact.
+compose-animation = { module = "androidx.compose.animation:animation" }
 compose-material-icons-extended = { module = "androidx.compose.material:material-icons-extended" }
 
 desugar-jdk-libs = { module = "com.android.tools:desugar_jdk_libs", version.ref = "desugarJdkLibs" }

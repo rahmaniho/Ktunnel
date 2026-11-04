@@ -1,2 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
-<manifest xmlns:android="http://schemas.android.com/apk/res/android" />
+<!--
+  :vpn owns NetworkMonitor, which registers a ConnectivityManager callback, so it
+  declares the permission it actually uses. Manifest entries from library modules
+  are merged into the app, so declaring it here and in :app would be redundant;
+  lint checks this module on its own and must not have to assume an app will
+  supply the permission.
+-->
+<manifest xmlns:android="http://schemas.android.com/apk/res/android">
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+</manifest>

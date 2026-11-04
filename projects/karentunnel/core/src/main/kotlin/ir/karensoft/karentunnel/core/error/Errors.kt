@@ -5,34 +5,34 @@ package ir.karensoft.karentunnel.core.error
  * UI (see ui/text/ErrorText.kt) — never to a raw exception string, because raw
  * messages can echo secrets back to the screen.
  */
-sealed interface ConfigError {
-    data object MissingEndpoint : ConfigError
-    data object MissingEndpointPort : ConfigError
-    data object MissingAddress : ConfigError
-    data object MissingDns : ConfigError
-    data object MissingAllowedIps : ConfigError
-    data object InvalidEndpoints : ConfigError
-    data object InvalidPrivateKey : ConfigError
-    data object InvalidPeerPublicKey : ConfigError
-    data object InvalidPresharedKey : ConfigError
-    data object KeyReuseNotAllowed : ConfigError
+sealed class ConfigError(message: String? = null) : Exception(message) {
+    data object MissingEndpoint : ConfigError("missing endpoint")
+    data object MissingEndpointPort : ConfigError("missing endpoint port")
+    data object MissingAddress : ConfigError("missing address")
+    data object MissingDns : ConfigError("missing dns")
+    data object MissingAllowedIps : ConfigError("missing allowed ips")
+    data object InvalidEndpoints : ConfigError("invalid endpoint")
+    data object InvalidPrivateKey : ConfigError("invalid private key")
+    data object InvalidPeerPublicKey : ConfigError("invalid peer public key")
+    data object InvalidPresharedKey : ConfigError("invalid preshared key")
+    data object KeyReuseNotAllowed : ConfigError("key reuse")
 
     /** IPv6 is partly exposed: interface has v6 but allowed-ips lacks ::/0. */
-    data object Ipv6NotFullyTunneled : ConfigError
+    data object Ipv6NotFullyTunneled : ConfigError("ipv6 not fully tunneled")
 
     /** Every configured DNS server is IPv6 while IPv6 is not tunneled. */
-    data object Ipv6OnlyDnsUnsupported : ConfigError
+    data object Ipv6OnlyDnsUnsupported : ConfigError("ipv6-only dns")
 
-    data class InvalidEndpoint(val raw: String) : ConfigError
-    data class InvalidPort(val raw: String) : ConfigError
-    data class InvalidAddress(val raw: String) : ConfigError
-    data class InvalidDns(val raw: String) : ConfigError
-    data class InvalidMtu(val value: Int) : ConfigError
-    data class InvalidKeepalive(val value: Int) : ConfigError
-    data class TooManyDnsServers(val count: Int) : ConfigError
+    data class InvalidEndpoint(val raw: String) : ConfigError("invalid endpoint: $raw")
+    data class InvalidPort(val raw: String) : ConfigError("invalid port: $raw")
+    data class InvalidAddress(val raw: String) : ConfigError("invalid address: $raw")
+    data class InvalidDns(val raw: String) : ConfigError("invalid dns: $raw")
+    data class InvalidMtu(val value: Int) : ConfigError("invalid mtu: $value")
+    data class InvalidKeepalive(val value: Int) : ConfigError("invalid keepalive: $value")
+    data class TooManyDnsServers(val count: Int) : ConfigError("too many dns: $count")
 
     /** The .conf file could not be parsed at all. */
-    data class Malformed(val detail: String) : ConfigError
+    data class Malformed(val detail: String) : ConfigError("malformed: $detail")
 }
 
 /**
@@ -41,36 +41,36 @@ sealed interface ConfigError {
  * The classification is deliberately conservative: anything we cannot prove is
  * [Transient], which means "retry a bounded number of times", never "loop".
  */
-sealed interface ConnectionError {
+sealed class ConnectionError(message: String? = null) : Exception(message) {
     /** The user (or the OS) has not granted our VPN consent. */
-    data object PermissionRequired : ConnectionError
+    data object PermissionRequired : ConnectionError("permission required")
 
     /** Consent was revoked while connected (VpnService.onRevoke). */
-    data object PermissionRevoked : ConnectionError
+    data object PermissionRevoked : ConnectionError("permission revoked")
 
     /** No usable network at all. */
-    data object NoNetwork : ConnectionError
+    data object NoNetwork : ConnectionError("no network")
 
     /** Endpoint name did not resolve. */
-    data class DnsResolutionFailed(val host: String) : ConnectionError
+    data class DnsResolutionFailed(val host: String) : ConnectionError("dns resolution failed: $host")
 
     /** TCP/UDP connect or handshake timed out. */
-    data object Timeout : ConnectionError
+    data object Timeout : ConnectionError("timeout")
 
     /** Tunnel interface could not be created or brought up. */
-    data class TunnelSetupFailed(val reason: String) : ConnectionError
+    data class TunnelSetupFailed(val reason: String) : ConnectionError("tunnel setup failed: $reason")
 
     /** Library reported a failure we cannot classify further. */
-    data class BackendFailure(val reason: String) : ConnectionError
+    data class BackendFailure(val reason: String) : ConnectionError("backend failure: $reason")
 
     /** No handshake observed in time: "connected" would be a lie. */
-    data object HandshakeTimeout : ConnectionError
+    data object HandshakeTimeout : ConnectionError("handshake timeout")
 
     /** Tunnel came up, then the handshake went stale. */
-    data object TunnelDegraded : ConnectionError
+    data object TunnelDegraded : ConnectionError("tunnel degraded")
 
     /** Anything unclassified. Treated as retryable but logged precisely. */
-    data class Transient(val reason: String) : ConnectionError
+    data class Transient(val reason: String) : ConnectionError("transient: $reason")
 }
 
 /**

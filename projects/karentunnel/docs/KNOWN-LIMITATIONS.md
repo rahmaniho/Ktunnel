@@ -12,12 +12,23 @@
 | sandbox توسعه نه JDK دارد نه Android SDK | بیلد و تست محلی ممکن نیست | فقط CI؛ APK فقط از artifact |
 | دسترسی به Maven/Google از sandbox قطع است | resolve وابستگی ممکن نیست | CI با دسترسی کامل |
 
-## ۲. FGS با `systemExempted`
+## ۲. نوع FGS: `specialUse` به‌جای `systemExempted`
 
-- مستند رسمی، اپ‌های VPN پیکربندی‌شده در Settings را واجد `systemExempted`
-  می‌داند، اما **روی دستگاه واقعی تأیید نشده است**.
-- اگر `ForegroundServiceTypeNotAllowedException` رخ دهد: جایگزین `specialUse`
-  با `<property android:name="android.app.PROPERTY_SPECIAL_USE_FGS_SUBTYPE">`.
+- نسخهٔ اول از `systemExempted` استفاده می‌کرد، چون مستند رسمی «اپ‌های VPN
+  پیکربندی‌شده در Settings > Network & Internet > VPN» را واجد آن می‌داند.
+- **اما** همان صفحه می‌گوید اپی که هیچ‌یک از شرط‌ها را نداشته باشد و این type را
+  اعلام کند، `ForegroundServiceTypeNotAllowedException` می‌گیرد — و مسیر «VPN
+  پیکربندی‌شده در Settings» API عمومی‌ای ندارد که اپ بتواند با آن اثبات کند واجد
+  شرط است. برای یک اپ شخصی که با sideload نصب می‌شود، این یعنی ریسک کرش هنگام
+  اتصال.
+- **تصمیم نهایی:** `foregroundServiceType="specialUse"` همراه با
+  `<property android:name="android.app.PROPERTY_SPECIAL_USE_FGS_SUBTYPE">`.
+  این type هیچ پیش‌نیاز زمان‌اجرایی ندارد.
+- **هزینه:** اگر اپ روزی در Google Play منتشر شود، این type در Play Console
+  بازبینی می‌شود. برای توزیع شخصی مسئله‌ای نیست.
+- این تصمیم با Lint هم تأیید شد: `systemExempted` بدون مجوز
+  `SCHEDULE_EXACT_ALARM`/`USE_EXACT_ALARM` خطای `ForegroundServicePermission`
+  می‌دهد، و اضافه‌کردن آن مجوزها برای یک VPN بی‌معنا و نادرست بود.
 - آزمون مربوطه: T-24 در `TEST-PLAN.md`.
 
 ## ۳. IPv6 و منطق `allowFamily` کتابخانه (F1)

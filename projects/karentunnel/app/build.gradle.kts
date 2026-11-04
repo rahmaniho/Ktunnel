@@ -43,12 +43,6 @@ android {
         isCoreLibraryDesugaringEnabled = true
     }
 
-    kotlin {
-        compilerOptions {
-            jvmTarget.set(org.jetbrains.kotlin.gradle.dsl.JvmTarget.JVM_17)
-            allWarningsAsErrors.set(true)
-        }
-    }
 
     buildFeatures {
         compose = true
@@ -75,6 +69,7 @@ dependencies {
     implementation(libs.compose.ui.graphics)
     implementation(libs.compose.ui.tooling.preview)
     implementation(libs.compose.material3)
+    implementation(libs.compose.animation)
     implementation(libs.compose.material.icons.extended)
     debugImplementation(libs.compose.ui.tooling)
 
@@ -84,6 +79,9 @@ dependencies {
     implementation(libs.androidx.lifecycle.runtime.compose)
     implementation(libs.androidx.lifecycle.viewmodel.compose)
     implementation(libs.kotlinx.coroutines.android)
+    // FileSecureConfigStore's default parameter is a kotlinx Json, so the
+    // type appears in :app's compile classpath and must be declared here.
+    implementation(libs.kotlinx.serialization.json)
     implementation(libs.wireguard.tunnel)
     coreLibraryDesugaring(libs.desugar.jdk.libs)
 
@@ -96,4 +94,13 @@ dependencies {
     androidTestImplementation(libs.androidx.test.junit)
     androidTestImplementation(libs.espresso.core)
     androidTestImplementation(platform(libs.compose.bom))
+}
+
+// Top-level Kotlin extension (NOT nested in android{}): the AGP 8.13 +
+// Kotlin 2.x contract. Warnings are errors on purpose.
+kotlin {
+    compilerOptions {
+        jvmTarget.set(org.jetbrains.kotlin.gradle.dsl.JvmTarget.fromTarget("17"))
+        allWarningsAsErrors.set(true)
+    }
 }

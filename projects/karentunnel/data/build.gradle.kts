@@ -17,12 +17,6 @@ android {
         targetCompatibility = JavaVersion.VERSION_17
     }
 
-    kotlin {
-        compilerOptions {
-            jvmTarget.set(org.jetbrains.kotlin.gradle.dsl.JvmTarget.JVM_17)
-            allWarningsAsErrors.set(true)
-        }
-    }
 
     testOptions {
         unitTests.isReturnDefaultValues = true
@@ -31,7 +25,6 @@ android {
 
 dependencies {
     api(project(":core"))
-    implementation(libs.wireguard.tunnel) // only to parse/validate .conf text
     implementation(libs.kotlinx.coroutines.android)
     implementation(libs.kotlinx.serialization.json)
     implementation(libs.androidx.datastore.preferences)
@@ -41,4 +34,13 @@ dependencies {
     testImplementation(libs.truth)
     testImplementation(libs.mockk)
     testImplementation(libs.kotlinx.coroutines.test)
+}
+
+// Top-level Kotlin extension (NOT nested in android{}): the AGP 8.13 +
+// Kotlin 2.x contract. Warnings are errors on purpose.
+kotlin {
+    compilerOptions {
+        jvmTarget.set(org.jetbrains.kotlin.gradle.dsl.JvmTarget.fromTarget("17"))
+        allWarningsAsErrors.set(true)
+    }
 }

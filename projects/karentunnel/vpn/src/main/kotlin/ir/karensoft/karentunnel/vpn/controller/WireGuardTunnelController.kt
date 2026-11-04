@@ -76,9 +76,12 @@ class WireGuardTunnelController(
             return Result.success(Unit)
         }
 
-        val wgQuick = buildWgQuickString(config)
+        // The generated wg-quick text embeds the private key, so it is kept as a
+        // CharArray that can be zeroed. String.fill() does not exist and strings
+        // cannot be wiped at all.
+        val wgQuick: CharArray = buildWgQuickString(config).toCharArray()
         val parsed = try {
-            Config.parse(ByteArrayInputStream(wgQuick.toByteArray(Charsets.UTF_8)))
+            Config.parse(ByteArrayInputStream(wgQuick.concatToString().toByteArray(Charsets.UTF_8)))
         } catch (e: BadConfigException) {
             return Result.failure(ConnectionError.TunnelSetupFailed("invalid generated config"))
         } catch (e: IOException) {
@@ -136,10 +139,13 @@ class WireGuardTunnelController(
     override suspend fun statistics(): TunnelStatistics {
         if (!active) return TunnelStatistics.EMPTY
         return try {
-            val stats = backend.statistics
-            // Statistics.peer(key) returns an immutable record (Java 16+).
+            // getStatistics(Tunnel) takes a parameter, so it is a method, not a
+            // property (unlike getVersion()). Verified against Backend.java.
+            val stats = backend.getStatistics(tunnel)
+            // Statistics.PeerStats is a Java record: components are read as
+            // properties from Kotlin, not as getter methods.
             val peer = stats.peers().firstOrNull()?.let { stats.peer(it) }
-            val age = peer?.latestHandshakeEpochMillis()?.takeIf { it > 0 }?.let {
+            val age = peer?.latestHandshakeEpochMillis?.takeIf { it > 0 }?.let {
                 // latestHandshakeEpochMillis is wall-clock; convert to an age.
                 (System.currentTimeMillis() - it).coerceAtLeast(0)
             }

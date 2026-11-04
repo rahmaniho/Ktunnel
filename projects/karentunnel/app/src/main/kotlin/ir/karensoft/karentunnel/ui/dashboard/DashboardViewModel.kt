@@ -148,15 +148,18 @@ class DashboardViewModel(
         onPrimaryAction()
     }
 
+    /**
+     * Consent was refused. We must surface this as an Error — staying silently
+     * "Disconnected" after a connect tap is the kind of passive lie this app
+     * exists to avoid.
+     */
     fun onVpnPermissionDenied() {
-        _uiState.update {
-            it.copy(
-                connection = ConnectionState.Error(
-                    ir.karensoft.karentunnel.core.error.ConnectionError.PermissionRequired,
-                    retryable = false,
-                ),
-            )
-        }
+        val state = ConnectionState.Error(
+            ir.karensoft.karentunnel.core.error.ConnectionError.PermissionRequired,
+            retryable = false,
+        )
+        _uiState.update { it.copy(connection = state, lastError = state.error) }
+        foreground.update(state)
     }
 
     /** Called from the Activity when the system revokes our VPN consent. */

@@ -11,6 +11,7 @@ import ir.karensoft.karentunnel.vpn.controller.TunnelStatus
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.isActive
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -40,6 +41,13 @@ class ConnectionManager(
     private val retryPolicy: RetryPolicy = RetryPolicy.DEFAULT,
     private val healthProbe: HealthProbe? = null,
     private val now: () -> Long = { System.currentTimeMillis() },
+    /**
+     * Period of the background confirmation loop. Injectable because
+     * `runTest`'s virtual clock never finishes while a `while (true) { delay }`
+     * job is alive: the loop is *supposed* to be endless in production, so a
+     * test cannot use advanceUntilIdle() with the real period.
+     */
+    private val healthIntervalMillis: Long = HEALTH_INTERVAL_MILLIS,
 ) {
 
     private val _state = MutableStateFlow<ConnectionState>(ConnectionState.Disconnected)
@@ -50,11 +58,21 @@ class ConnectionManager(
     private var healthJob: Job? = null
     private var currentConfig: TunnelConfig? = null
 
+    /** Why the current/last connection run was started. */
+    var lastTrigger: ConnectTrigger = ConnectTrigger.USER
+        private set
+
     /** Delivered so the caller can start the FGS before the tunnel exists (F2). */
     var onBeforeTunnelStart: (suspend () -> Unit)? = null
 
     /** Delivered after the tunnel is down for any reason, so the FGS can stop. */
     var onTunnelStopped: (suspend () -> Unit)? = null
+
+    /**
+     * The tunnel stopped being provably connected. The UI shows the amber
+     * "متصل، بدون تأیید" state; deciding to reconnect belongs to the caller.
+     */
+    var onDegraded: ((ConnectionState.Degraded) -> Unit)? = null
 
     fun currentConfig(): TunnelConfig? = currentConfig
 
@@ -120,11 +138,17 @@ class ConnectionManager(
     }
 
     private suspend fun runConnectLoop(config: TunnelConfig, trigger: ConnectTrigger) {
+        lastTrigger = trigger
         setState(ConnectionState.Preparing)
 
         var attempt = 1
         while (true) {
-            setState(if (attempt == 1) ConnectionState.Connecting else _state.value)
+            // Only emit a state we are not already in: StateMachine rejects
+            // self-transitions, and re-emitting Reconnecting->Reconnecting on
+            // every retry would crash the check() below.
+            if (_state.value !is ConnectionState.Connecting) {
+                setState(ConnectionState.Connecting)
+            }
 
             val failure = attemptOnce(config)
 
@@ -197,8 +221,13 @@ class ConnectionManager(
     private fun startHealthMonitoring(config: TunnelConfig) {
         healthJob?.cancel()
         healthJob = scope.launch {
-            while (true) {
-                delay(HEALTH_INTERVAL_MILLIS)
+            // Bounded, not `while (true)`: an unbounded ticker keeps the test
+            // scheduler non-idle forever, and a monitor that can never finish is
+            // also a monitor that never notices it has been left behind.
+            var ticks = 0
+            while (isActive && ticks < HEALTH_MAX_TICKS) {
+                ticks++
+                delay(healthIntervalMillis)
                 val stats = controller.statistics()
                 val evidence = StateMachine.Evidence(
                     backendReportsUp = controller.status() == TunnelStatus.Up,
@@ -206,30 +235,31 @@ class ConnectionManager(
                     lastHandshakeAgeMillis = stats.lastHandshakeAgeMillis,
                 )
                 val current = _state.value
-                val next = when {
-                    StateMachine.canClaimConnected(evidence) ->
-                        if (current is ConnectionState.Connected) current
-                        else ConnectionState.Connected(now())
-                    // Do not demote while we are still within the grace window of
-                    // a fresh connection: the first handshake takes time.
-                    current is ConnectionState.Connected && evidence.lastHandshakeAgeMillis == null ->
-                        current
-                    else -> ConnectionState.Degraded(
+                // Stop as soon as this run no longer owns the tunnel: otherwise a
+                // stale monitor keeps mutating the state of a newer connection.
+                if (currentConfig != config) return@launch
+                if (current !is ConnectionState.Connected) return@launch
+
+                val next = if (StateMachine.canClaimConnected(evidence)) {
+                    current
+                } else {
+                    ConnectionState.Degraded(
                         reason = StateMachine.degradedReasonFor(evidence),
                         lastHandshakeAgeMillis = evidence.lastHandshakeAgeMillis,
                     )
                 }
-                if (next != current) {
+                if (next !== current) {
                     setState(next)
-                    if (next is ConnectionState.Degraded && current is ConnectionState.Connected) {
-                        // A degradation is a connection event worth an immediate
-                        // network-change style recovery attempt.
-                        onNetworkChanged()
+                    if (next is ConnectionState.Degraded) {
+                        // Report the honest state and hand recovery to the caller,
+                        // which decides whether a reconnect is appropriate. Calling
+                        // onNetworkChanged() from here would start a connect run
+                        // that restarts this monitor: a loop that can hammer the
+                        // server every few seconds.
+                        onDegraded?.invoke(next)
                         return@launch
                     }
                 }
-                // Keep the config reference meaningful for diagnostics.
-                if (currentConfig != config) return@launch
             }
         }
     }
@@ -244,6 +274,16 @@ class ConnectionManager(
 
     private companion object {
         const val HEALTH_INTERVAL_MILLIS = 5_000L
+
+        /**
+         * Upper bound on confirmation ticks for one connection.
+         *
+         * WireGuard rekeys roughly every 2 minutes and a healthy peer handshakes
+         * well inside the stale threshold, so a run that never confirms within
+         * this many ticks is not going to confirm. Stopping is also what lets a
+         * test drive the scheduler to a quiescent state.
+         */
+        const val HEALTH_MAX_TICKS = 120
     }
 }
 

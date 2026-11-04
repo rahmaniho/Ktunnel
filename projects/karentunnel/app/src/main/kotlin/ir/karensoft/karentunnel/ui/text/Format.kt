@@ -112,6 +112,7 @@ object StatusText {
         ConfigError.MissingAddress -> "نشانی اینترفیس (Address) در پیکربندی نیست."
         ConfigError.MissingDns -> "سروری برای DNS تعیین نشده است؛ برای جلوگیری از نشتی DNS، پیکربندی رد شد."
         ConfigError.MissingAllowedIps -> "AllowedIPs خالی است؛ مسیرهای تونل مشخص نیست."
+        ConfigError.InvalidEndpoints -> "چند Endpoint در پیکربندی هست؛ این برنامه فقط یک سرور در هر تونل می‌پذیرد."
         ConfigError.InvalidPrivateKey -> "کلید خصوصی معتبر نیست (باید base64 استاندارد ۳۲ بایتی باشد)."
         ConfigError.InvalidPeerPublicKey -> "کلید عمومی سرور (PublicKey) معتبر نیست."
         ConfigError.InvalidPresharedKey -> "کلید مشترک (PresharedKey) معتبر نیست."

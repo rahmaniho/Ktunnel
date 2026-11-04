@@ -5,7 +5,6 @@ import ir.karensoft.karentunnel.core.model.ConfigNormalizer
 import ir.karensoft.karentunnel.core.model.Ipv6Policy
 import ir.karensoft.karentunnel.core.model.ServerId
 import ir.karensoft.karentunnel.core.model.TunnelConfig
-import ir.karensoft.karentunnel.core.test.TestConfigs
 import org.junit.Rule
 import org.junit.Test
 import org.junit.rules.TemporaryFolder
