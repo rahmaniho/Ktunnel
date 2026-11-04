@@ -63,6 +63,16 @@ object TunnelColors {
     val connectedDark = VerifiedGreenDark
     val degradedLight = Amber
     val degradedDark = AmberLight
+
+    /**
+     * Resolved "degraded" colour for the current theme.
+     *
+     * Degraded is amber on purpose and is never green: a tunnel whose handshake
+     * we cannot see is not verified, and the colour is the one place that promise
+     * is made visible.
+     */
+    val degraded: Color
+        @Composable get() = if (isSystemInDarkTheme()) degradedDark else degradedLight
 }
 
 @Composable

@@ -99,7 +99,23 @@ class DashboardViewModel(
     fun selectServer(id: ServerId, displayName: String) {
         selected = id
         selectedName = displayName
-        _uiState.update { it.copy(serverName = displayName) }
+        _uiState.update { it.copy(serverName = displayName, selectedServerId = id) }
+    }
+
+    /**
+     * Re-reads the selection after the servers screen mutated the store.
+     *
+     * Deleting or importing on another screen can invalidate the cached
+     * selection; calling this keeps the dashboard from offering "connect" for a
+     * server that no longer exists.
+     */
+    fun refreshServers() {
+        val id = selected ?: return
+        if (!store.exists(id)) {
+            selected = null
+            selectedName = null
+            _uiState.update { it.copy(serverName = null, selectedServerId = null) }
+        }
     }
 
     /**

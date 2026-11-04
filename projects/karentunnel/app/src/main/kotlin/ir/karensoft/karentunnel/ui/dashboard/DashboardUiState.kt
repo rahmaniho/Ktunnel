@@ -11,6 +11,8 @@ import ir.karensoft.karentunnel.core.error.ConnectionError
 data class DashboardUiState(
     val connection: ConnectionState = ConnectionState.Disconnected,
     val serverName: String? = null,
+    /** Id of the selected server, when one is selected. Null before selection. */
+    val selectedServerId: ir.karensoft.karentunnel.core.model.ServerId? = null,
     val protocolLabel: String = "WireGuard",
     val uptimeMillis: Long = 0,
     val rxBytes: Long = 0,

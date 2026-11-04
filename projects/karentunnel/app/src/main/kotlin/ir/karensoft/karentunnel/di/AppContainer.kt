@@ -1,9 +1,12 @@
 package ir.karensoft.karentunnel.di
 
 import android.content.Context
+import ir.karensoft.karentunnel.data.repo.ServerRepository
 import ir.karensoft.karentunnel.data.secure.FileSecureConfigStore
 import ir.karensoft.karentunnel.data.secure.KeystoreCryptoEngine
 import ir.karensoft.karentunnel.data.secure.SecureConfigStore
+import ir.karensoft.karentunnel.data.settings.DataStoreSettingsRepository
+import ir.karensoft.karentunnel.data.settings.SettingsRepository
 import ir.karensoft.karentunnel.diagnostics.ProbeEngine
 import ir.karensoft.karentunnel.vpn.connection.HealthProbe
 import ir.karensoft.karentunnel.vpn.controller.WireGuardTunnelController
@@ -38,6 +41,14 @@ class AppContainer(
         baseDir = File(applicationContext.filesDir, "tunnels"),
         crypto = crypto,
     )
+
+    /**
+     * Servers are read through this, never through [configStore] directly: the
+     * repository strips keys, so a ViewModel cannot leak one into UI state.
+     */
+    val serverRepository = ServerRepository(configStore)
+
+    val settingsRepository: SettingsRepository = DataStoreSettingsRepository(applicationContext)
 
     val tunnelController = WireGuardTunnelController(applicationContext)
 

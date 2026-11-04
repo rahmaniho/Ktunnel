@@ -3,6 +3,10 @@
     <string name="app_name">کارن‌تونل</string>
 
     <!-- dashboard -->
+    <!-- ناوبری داشبورد -->
+    <string name="dashboard_open_servers">سرورها</string>
+    <string name="dashboard_open_settings">تنظیمات</string>
+    <string name="dashboard_open_diagnostics">عیب‌یابی اتصال</string>
     <string name="dashboard_no_server">سروری انتخاب نشده</string>
     <string name="dashboard_connect_cd_format">دکمهٔ اتصال. وضعیت فعلی: %1$s</string>
     <string name="metric_duration">مدت اتصال</string>
