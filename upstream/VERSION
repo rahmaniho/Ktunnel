@@ -1,0 +1,6 @@
+# Machine-readable upstream pin, read by scripts/sync-agents.sh --update-upstream
+# and scripts/check-agency.sh. Human notes live in upstream/VERSION.md.
+repo: msitarzewski/agency-agents
+commit: b37b5bb33b78f2c1d6567d98e25ca818e3259219
+synced: 2026-11-04
+files: 384

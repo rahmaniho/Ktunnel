@@ -1,0 +1,38 @@
+# macOS / editors
+.DS_Store
+._*
+.vscode/
+.idea/
+*.swp
+*~
+
+# Python
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+
+# Node (if tooling is added later)
+node_modules/
+npm-debug.log*
+
+# Local, machine-specific tool config that must never leave this machine.
+# The repo-local roster lives in .claude/agents/ and IS committed on purpose
+# (see .claude/README.md) — only secrets and per-user overrides are ignored.
+.claude/settings.local.json
+.claude/agents/*.local.md
+
+# Scratch output from install/convert runs against other tools
+/.cursor/
+/.qwen/
+/.zcode/
+/.opencode/
+/.codex/
+/.vibe/
+/.dsh/
+/.windsurfrules
+/CONVENTIONS.md
+
+# Reports that are too large or contain environment details
+reports/**/*.log
+!reports/**/tests.log

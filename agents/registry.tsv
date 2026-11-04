@@ -1,0 +1,67 @@
+# KarenSoft AI Agency — curated agent registry
+#
+# Single source of truth for the curated roster. Used by:
+#   scripts/sync-agents.sh   (upstream -> agents/)
+#   scripts/install.sh       (agents/ -> .claude/agents/ via upstream install.sh)
+#   scripts/check-agency.sh  (integrity, docs drift)
+#   scripts/gen-roster.py    (AGENTS.md generation)
+#
+# Columns (TAB separated):
+#   1 division  KarenSoft division folder under agents/
+#   2 slug      curated file name, also the developer-facing short id
+#   3 upstream  upstream source file stem (upstream/agency-agents/<dir>/<stem>.md)
+#   4 name      upstream frontmatter `name:` (what the orchestrator dispatches by)
+#   5 emoji     short marker for docs
+#   6 when      one-line activation cue (Persian; becomes the AGENTS.md table)
+#
+# Never edit a copied agent body by hand: scripts/sync-agents.sh rewrites it
+# from upstream, and scripts/check-agency.sh fails if any copy drifts.
+division	slug	upstream	name	emoji	when
+executive	chief-of-staff	specialized-chief-of-staff	Chief of Staff	🧭	واگذاری چندبخشی، هم‌ترازی خروجی‌ها، و تصمیم‌هایی که بین تیم‌ها گم می‌شوند
+executive	agents-orchestrator	agents-orchestrator	Agents Orchestrator	🎛️	اجرای یکپارچهٔ یک جریان کاری کامل از اسپک تا انتشار
+executive	senior-project-manager	project-manager-senior	Senior Project Manager	📝	شکستن اسپک به تسک، برآورد دامنه، و پیگیری اجرا
+executive	sprint-prioritizer	product-sprint-prioritizer	Sprint Prioritizer	🎯	اولویت‌بندی بک‌لاگ، برنامه‌ریزی اسپرینت، و تخصیص ظرفیت
+executive	product-manager	product-manager	Product Manager	🧭	مالکیت چرخهٔ عمر محصول از کشف نیاز تا GTM و سنجش نتیجه
+executive	business-strategist	business-strategist	Business Strategist	♟️	تحلیل رقبا، ورود به بازار، مدل درآمدی، و تصمیم‌های استراتژیک
+engineering	software-architect	engineering-software-architect	Software Architect	🏛️	معماری کلان، مرز سرویس‌ها، و تصمیم‌های غیرقابل‌برگشت
+engineering	backend-architect	engineering-backend-architect	Backend Architect	🏗️	طراحی API، مدل داده، و مقیاس‌پذیری سمت سرور
+engineering	frontend-developer	engineering-frontend-developer	Frontend Developer	🖥️	پیاده‌سازی رابط، کامپوننت‌ها، و کارایی رندر
+engineering	senior-developer	engineering-senior-developer	Senior Developer	💎	مسائل سخت پیاده‌سازی و بازآرایی ساختاری
+engineering	api-platform-engineer	engineering-api-platform-engineer	API Platform Engineer	🔌	پلتفرم API، قراردادها، نسخه‌بندی، و gateway
+engineering	devops-automator	engineering-devops-automator	DevOps Automator	⚙️	CI/CD، اتوماسیون زیرساخت، و استقرار
+engineering	sre	engineering-sre	SRE (Site Reliability Engineer)	🛡️	SLO، هشداردهی، و قابلیت اطمینان عملیاتی
+engineering	platform-engineer	engineering-platform-engineer	Platform Engineer	🛤️	پلتفرم توسعه‌دهنده و مسیر طلایی تحویل
+engineering	ai-engineer	engineering-ai-engineer	AI Engineer	🤖	ادغام مدل، RAG، و جریان‌های هوش مصنوعی در محصول
+engineering	data-engineer	engineering-data-engineer	Data Engineer	🔧	خطوط داده، انبار داده، و کیفیت داده
+engineering	mobile-app-builder	engineering-mobile-app-builder	Mobile App Builder	📲	اپ موبایل بومی یا چندسکویی
+engineering	rapid-prototyper	engineering-rapid-prototyper	Rapid Prototyper	⚡	نمونهٔ اولیهٔ سریع برای اعتبارسنجی ایده
+engineering	incident-response-commander	engineering-incident-response-commander	Incident Response Commander	🚨	فرمان‌دهی به حادثهٔ عملیاتی و بازبینی پس از حادثه
+engineering	git-workflow-master	engineering-git-workflow-master	Git Workflow Master	🌿	استراتژی شاخه، کامیت متعارف، و تاریخ تمیز
+engineering	technical-writer	engineering-technical-writer	Technical Writer	📚	مستندات توسعه‌دهنده، مرجع API، و راهنما
+design	ux-architect	design-ux-architect	UX Architect	📐	معماری اطلاعات، جریان کاربر، و اسکلت تجربه
+design	ui-designer	design-ui-designer	UI Designer	🎨	طراحی بصری، سیستم طراحی، و جزئیات تعامل
+design	ux-researcher	design-ux-researcher	UX Researcher	🔬	مصاحبه، آزمون کاربر، و شواهد رفتاری
+design	feedback-synthesizer	product-feedback-synthesizer	Feedback Synthesizer	🔍	تبدیل بازخورد پراکنده به اولویت قابل اجرا
+design	trend-researcher	product-trend-researcher	Trend Researcher	🔭	رصد روند بازار و فرصت‌های نوظهور
+design	brand-guardian	design-brand-guardian	Brand Guardian	🎨	یکپارچگی هویت برند در همهٔ نقاط تماس
+design	visual-storyteller	design-visual-storyteller	Visual Storyteller	🎬	روایت بصری، داستان محصول، و ارائه
+design	image-prompt-engineer	design-image-prompt-engineer	Image Prompt Engineer	📷	پرامپت تصویر برای دارایی‌های برند
+security	security-architect	security-architect	Security Architect	🛡️	معماری امن، مدل تهدید، و مرزهای اعتماد
+security	appsec-engineer	security-appsec-engineer	Application Security Engineer	🔐	بازبینی امن کد و کنترل‌های AppSec
+security	penetration-tester	security-penetration-tester	Penetration Tester	🗡️	آزمون نفوذ و اثبات اکسپلویت
+security	cloud-security-architect	security-cloud-security-architect	Cloud Security Architect	☁️	امنیت ابر، IAM، و جداسازی شبکه
+security	secrets-credential-hygiene-engineer	security-secrets-credential-engineer	Secrets & Credential Hygiene Engineer	🔑	چرخهٔ عمر رازها، چرخش کلید، و پاسخ به افشا
+security	ai-generated-code-auditor	security-ai-generated-code-auditor	AI-Generated Code Security Auditor	🔎	بازبینی کد تولیدشده توسط مدل پیش از ادغام
+security	compliance-auditor	security-compliance-auditor	Compliance Auditor	📋	انطباق، سیاست‌ها، و شواهد حسابرسی
+security	incident-responder	security-incident-responder	Incident Responder	🚨	مهار، ریشه‌یابی، و پاک‌سازی رخداد امنیتی
+quality	code-reviewer	engineering-code-reviewer	Code Reviewer	👁️	بازبینی کد برای نگه‌داشت‌پذیری و ریسک
+quality	test-automation-engineer	testing-test-automation-engineer	Test Automation Engineer	🎭	طراحی هرم آزمون و اتوماسیون تست
+quality	api-tester	testing-api-tester	API Tester	🔌	آزمون قرارداد، مرز، و رفتار API
+quality	performance-benchmarker	testing-performance-benchmarker	Performance Benchmarker	⏱️	سنجش کارایی، بار، و رگرسیون عملکرد
+quality	accessibility-auditor	testing-accessibility-auditor	Accessibility Auditor	♿	انطباق دسترس‌پذیری و WCAG
+quality	reality-checker	testing-reality-checker	Reality Checker	🧐	دروازهٔ پذیرش مبتنی بر شاهد؛ پیش‌فرض «نیاز به کار»
+marketing	growth-hacker	marketing-growth-hacker	Growth Hacker	🚀	آزمایش رشد، قیف جذب، و حلقهٔ بازگشت
+marketing	content-creator	marketing-content-creator	Content Creator	✍️	تولید محتوای هدفمند و تقویم محتوا
+marketing	seo-specialist	marketing-seo-specialist	SEO Specialist	🔍	جست‌وجوی ارگانیک و ساختار محتوای سئو
+marketing	social-media-strategist	marketing-social-media-strategist	Social Media Strategist	📣	استراتژی شبکه‌های اجتماعی و تقویم انتشار
+marketing	pr-communications-manager	marketing-pr-communications-manager	PR & Communications Manager	📣	روابط عمومی، پیام‌رسانی بحران، و بیانیه‌ها

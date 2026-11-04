@@ -1,0 +1,49 @@
+name: check
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  agency:
+    name: agency integrity
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install the curated roster (repo-local)
+        run: ./scripts/install.sh --force
+
+      - name: Check agency repo
+        run: ./scripts/check-agency.sh
+
+      - name: Shell syntax of every script
+        run: |
+          for f in scripts/*.sh upstream/agency-agents/scripts/install.sh; do
+            bash -n "$f"
+          done
+
+      - name: Python syntax of every script
+        run: |
+          for f in scripts/*.py; do
+            python3 -m py_compile "$f"
+          done
+
+      - name: No secrets committed
+        run: |
+          if grep -rInE '(BEGIN [A-Z ]*PRIVATE KEY|AKIA[0-9A-Z]{16}|ghp_[A-Za-z0-9]{30,})' \
+               --include='*.md' --include='*.sh' --include='*.py' --include='*.yml' \
+               . | grep -v '^./upstream/' ; then
+            echo "::error::possible credential committed"
+            exit 1
+          fi
+          echo "no credential patterns found"
