@@ -84,6 +84,8 @@ jobs:
       # delivered. So the compiler's own output is committed back to the branch:
       # that makes it readable with a plain `git fetch`.
       - name: Publish build diagnostics to the branch
+        # Any failing step in this job, not just the tests: lint can fail on its
+        # own and then there would be no recorded reason at all.
         if: failure()
         run: |
           mkdir -p ci
@@ -156,7 +158,10 @@ jobs:
           exit ${PIPESTATUS[0]}
 
       - name: Lint (release-blocking)
-        run: ./gradlew lintDebug --stacktrace
+        run: |
+          set +e
+          ./gradlew lintDebug --stacktrace 2>&1 | tee /tmp/gradle.log
+          exit ${PIPESTATUS[0]}
 
       - name: Publish test + lint reports
         if: always()
