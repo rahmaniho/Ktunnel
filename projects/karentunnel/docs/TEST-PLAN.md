@@ -11,34 +11,34 @@
 
 | مورد | وضعیت | شاهد |
 | --- | --- | --- |
-| بیلد و تست کامل (CI) | ✅ **سبز** | اجرای `41766458041` — هر ۹ گام موفق |
-| کامپایل هر پنج ماژول | ✅ انجام شد | همان اجرا، گام `Unit tests` و `Assemble debug APK` |
+| بیلد و تست کامل (CI) | ✅ **سبز** | اجرای `41807834698` — هر پنج job موفق |
+| کامپایل هر پنج ماژول | ✅ انجام شد | همان اجرا، job `assemble + unit tests + lint` و `compile core/vpn/data/diagnostics` |
 | تست‌های واحد (JVM) | ✅ **اجرا و سبز** | همان اجرا؛ `testDebugUnitTest` برای هر پنج ماژول |
-| بیلد APK دیباگ | ✅ **ساخته شد** | artifact `karentunnel-debug-apk`، ۲۱٬۹۵۸٬۶۶۵ بایت |
-| Lint | ✅ **بدون خطا** | همان اجرا؛ `:core`، `:data`، `:diagnostics` بدون هیچ مسئله |
+| بیلد APK دیباگ | ✅ **ساخته شد** | artifact `karentunnel-debug-apk` |
+| بیلد APK release (R8 + shrink) | ✅ **ساخته شد** | artifact `karentunnel-release-apk-ci-signed` |
+| تعداد تست‌های اجراشده | ✅ **۶۸ تست، ۰ شکست** | `ci/test-totals.txt` (استخراج از JUnit XML) |
+| Lint | ✅ **بدون خطا** | همان اجرا؛ بدون یافتهٔ بازدارنده در هر پنج ماژول |
 | تست روی دستگاه فیزیکی | ❌ انجام نشده | نیازمند دستگاه + سرور واقعی |
 | تست نشتی DNS/IPv6 روی شبکهٔ واقعی | ❌ انجام نشده | نیازمند محیط شبکه‌ای واقعی |
 | تأیید RFD/always-on | ❌ انجام نشده | نیازمند دستگاه |
 
-### ۰.۱ گام‌های سبز اجرای `41766458041`
+### ۰.۱ گام‌های سبز اجرای `41807834698`
 
 ```
-Set up JDK 17                          => success
-Set up Android SDK                     => success
-Set up Gradle                          => success
-Verify pinned dependencies resolve     => success
-Unit tests (all modules)               => success
-Assemble debug APK                     => success
-Lint (release-blocking)                => success
-Publish test + lint reports            => success
-Upload APK                             => success
+dependency availability probe          => success
+compile core/vpn/data/diagnostics      => success
+dump the real WireGuard tunnel API     => success
+assemble + unit tests + lint           => success
+assemble release APK (CI-signed)       => success
 ```
 
 ### ۰.۲ آنچه این موفقیت **اثبات نمی‌کند**
 
 - هیچ تستی روی دستگاه اندروید اجرا نشده است. `VpnService`، `GoBackend`،
   Keystore و رابط Compose فقط **کامپایل** شده‌اند، نه اجرا.
-- APK امضا نشده است (debug keystore خودکار CI).
+- APK دیباگ با کلید debug اندروید امضا شده و artifact با نام
+  `karentunnel-release-apk-ci-signed` با یک **کلید موقت تولیدشده در CI** امضا شده است.
+  هیچ‌کدام با کلید انتشار واقعی امضا نشده و هیچ‌کدام برای توزیع عمومی مناسب نیستند.
 - هیچ تونل واقعی ساخته نشده: نه دست‌دادنی انجام شده، نه بسته‌ای عبور کرده.
 - ابزار `wireguard-api` (استخراج API واقعی کتابخانه) در همان اجرا شکست خورد؛
   پس امضاهای `Backend`/`Tunnel` از روی **سورس** کتابخانه تطبیق داده شده‌اند، نه
