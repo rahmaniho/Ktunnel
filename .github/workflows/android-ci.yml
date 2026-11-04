@@ -521,6 +521,25 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      # build-tools supplies aapt2 and apksigner, needed to open the APKs below.
+      # This job previously had no Android SDK at all, so the verification step
+      # was reaching for binaries that were never installed.
+      - name: Set up Android SDK
+        run: |
+          set -euo pipefail
+          SDK_ROOT="$RUNNER_TOOL_CACHE/android-sdk"
+          mkdir -p "$SDK_ROOT/cmdline-tools"
+          curl -fsSL -o /tmp/cmdtools.zip \
+            https://dl.google.com/android/repository/commandlinetools-linux-11076708_latest.zip
+          unzip -q /tmp/cmdtools.zip -d "$SDK_ROOT/cmdline-tools"
+          mv "$SDK_ROOT/cmdline-tools/cmdline-tools" "$SDK_ROOT/cmdline-tools/latest"
+          yes | "$SDK_ROOT/cmdline-tools/latest/bin/sdkmanager" --licenses >/dev/null 2>&1 || true
+          "$SDK_ROOT/cmdline-tools/latest/bin/sdkmanager" --install \
+            "platform-tools" "build-tools;35.0.0" >/dev/null
+          echo "ANDROID_HOME=$SDK_ROOT" >> "$GITHUB_ENV"
+          echo "ANDROID_SDK_ROOT=$SDK_ROOT" >> "$GITHUB_ENV"
+          ls "$SDK_ROOT/build-tools/35.0.0/aapt2" "$SDK_ROOT/build-tools/35.0.0/apksigner"
+
       - name: Download the debug APK
         uses: actions/download-artifact@v4
         with:
@@ -559,7 +578,12 @@ jobs:
           # are actually reachable. A release that says "APK" is worthless if
           # nobody ever opened it, and the sandbox that drove this work cannot
           # download release assets to check afterwards.
-          BT="$RUNNER_TOOL_CACHE/android-sdk/build-tools/35.0.0"
+          BT="${ANDROID_SDK_ROOT:-$RUNNER_TOOL_CACHE/android-sdk}/build-tools/35.0.0"
+          if [ ! -x "$BT/aapt2" ] || [ ! -x "$BT/apksigner" ]; then
+            echo "::error::build-tools not found at $BT; cannot verify the APKs"
+            ls -la "$BT" 2>/dev/null || true
+            exit 1
+          fi
           for f in out/*.apk; do
             echo "--- $f"
             # Under `set -o pipefail` a grep that finds only some of the patterns
