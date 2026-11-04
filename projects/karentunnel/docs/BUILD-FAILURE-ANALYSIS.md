@@ -11,7 +11,7 @@
 | اولین اجرای `android-ci` (PR #1) | **fail** در گام `testDebugUnitTest` |
 | لاگ کامپایلر | در آن زمان قابل دریافت نبود (ریدایرکت به `*.blob.core.windows.net`) |
 | کد | **قبل از این دور، هرگز یک بار هم کامپایل نشده بود** |
-| اجرای نهایی | ✅ **سبز** — `41766458041`، هر ۹ گام موفق |
+| اجرای نهایی | ✅ **سبز** — `41767804110`، **هر چهار job** موفق |
 | APK دیباگ | ساخته شد (۲۱٬۹۵۸٬۶۶۵ بایت) |
 
 ### ۱.۱ راه‌حل دسترسی به لاگ
@@ -49,7 +49,7 @@ workflow در صورت شکست، خودِ لاگ را در `ci/last-failure.md`
 
 ## ۴. ریسک‌های باقی‌مانده (تأییدنشده)
 
-- ~~نسخه‌های Compose/AndroidX~~ — **حل شد.** `41766458041` همه را resolve و
+- ~~نسخه‌های Compose/AndroidX~~ — **حل شد.** `41767804110` همه را resolve و
   کل app را کامپایل کرد.
 - ~~امضای `Backend`/`Tunnel`~~ — **حل شد.** اجرای `41767804110` تایپ‌های واقعی
   AAR نسخهٔ `1.0.20260102` را استخراج کرد (`ci/wireguard-api.md`):
@@ -91,7 +91,7 @@ workflow در صورت شکست، خودِ لاگ را در `ci/last-failure.md`
 
 ## ۶. آنچه اثبات شد
 
-- [x] `testDebugUnitTest` سبز — اجرای `41766458041` (ثبت در `TEST-PLAN.md` §۰)
+- [x] `testDebugUnitTest` سبز — اجرای `41767804110` (ثبت در `TEST-PLAN.md` §۰)
 - [x] `assembleDebug` سبز — artifact `karentunnel-debug-apk`، ۲۱٫۹ مگابایت
 - [x] ۲۱ تست واقعاً اجرا شدند، نه فقط کامپایل
 - [x] `lintDebug` بدون خطای بازدارنده (۰ مسئله در `:core`، `:data`، `:diagnostics`)
@@ -118,7 +118,7 @@ workflow در صورت شکست، خودِ لاگ را در `ci/last-failure.md`
 | `41762203584` | ۵ تست timeout | همان، با بازهٔ تزریق‌شده هنوز بی‌پایان |
 | `41763155529` | ۲۱ از ۲۱ سبز، lint شکست | حلقه محدود شد؛ lint هرگز قبلاً اجرا نشده بود |
 | `41763881119` | `MissingPermission: ACCESS_NETWORK_STATE` | مجوز در `:app` بود، مصرف‌کننده `:vpn` بود |
-| `41765886354` | `ForegroundServicePermission: systemExempted` | این type مجوز `SCHEDULE_EXACT_ALARM` می‌خواست؛ به `specialUse` تغییر کرد |
-| `41766458041` | — | ✅ **سبز** |
+| `41766458041` | `ForegroundServicePermission: systemExempted` | این type مجوز `SCHEDULE_EXACT_ALARM` می‌خواست؛ به `specialUse` تغییر کرد |
+| `41767804110` | — | ✅ **سبز — هر چهار job** |
 
 </div>
