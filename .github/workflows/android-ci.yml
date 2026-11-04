@@ -554,6 +554,21 @@ jobs:
           echo "release apk: $REL_APK"
           cp "$DEBUG_APK" out/karentunnel-debug.apk
           cp "$REL_APK" out/karentunnel-release-ci-signed.apk
+
+          # Verify the files before publishing them, in the one place the bytes
+          # are actually reachable. A release that says "APK" is worthless if
+          # nobody ever opened it, and the sandbox that drove this work cannot
+          # download release assets to check afterwards.
+          BT="$RUNNER_TOOL_CACHE/android-sdk/build-tools/35.0.0"
+          for f in out/*.apk; do
+            echo "--- $f"
+            "$BT/aapt2" dump badging "$f" \
+              | grep -E "^package:|^sdkVersion:|^targetSdkVersion:|^application-label:|^launchable-activity:" \
+              || { echo "::error::$f has no readable manifest"; exit 1; }
+            "$BT/apksigner" verify --print-certs "$f" >/dev/null \
+              || { echo "::error::$f is not signed"; exit 1; }
+            echo "signed: yes"
+          done
           # The commit is in the file name so two builds can never be confused,
           # and so the APK can be traced back to the exact source it came from.
           SHORT="${GITHUB_SHA:0:7}"
@@ -563,6 +578,9 @@ jobs:
             echo "build commit: ${GITHUB_SHA}"
             echo "run: https://github.com/${GITHUB_REPOSITORY}/actions/runs/${GITHUB_RUN_ID}"
             echo "version: 0.1.0"
+            echo
+            echo "sizes (bytes):"
+            (cd out && stat -c '%n %s' *.apk)
             echo
             echo "sha256:"
             (cd out && sha256sum *.apk)
