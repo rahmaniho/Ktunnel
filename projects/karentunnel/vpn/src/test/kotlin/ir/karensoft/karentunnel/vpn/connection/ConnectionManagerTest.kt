@@ -11,6 +11,7 @@ import ir.karensoft.karentunnel.vpn.controller.TunnelController
 import ir.karensoft.karentunnel.vpn.controller.TunnelStatistics
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.advanceTimeBy
+import kotlinx.coroutines.test.runCurrent
 import kotlinx.coroutines.test.advanceUntilIdle
 import kotlinx.coroutines.test.TestScope
 import kotlinx.coroutines.test.runTest
@@ -138,27 +139,32 @@ class ConnectionManagerTest {
             controller = controller,
             scope = this,
             healthProbe = FakeHealthProbe(true),
-            // Short enough to fire on the virtual clock, and one-shot: the loop
-            // returns after the first demotion, so this cannot spin.
             healthIntervalMillis = 1_000L,
         )
         val degradedReasons = mutableListOf<ir.karensoft.karentunnel.core.connection.DegradedReason>()
         manager.onDegraded = { degradedReasons += it.reason }
 
         manager.connect(config)
-        advanceUntilIdle()
+
+        // The monitor is now a Timer. Stepping the clock a controlled amount is
+        // what lets the tunnel reach Connected without also draining every
+        // pending health tick: advanceUntilIdle() would run the whole bounded
+        // health loop while the peer is still healthy, and there would be
+        // nothing left to demote.
+        advanceTimeBy(500L)
+        runCurrent()
         assertThat(manager.state.value).isInstanceOf(ConnectionState.Connected::class.java)
 
         // The peer stops answering: no handshake is reported from now on.
         controller.statisticsAfterUp = TunnelStatistics(lastHandshakeAgeMillis = null)
         advanceTimeBy(1_500L)
-        advanceUntilIdle()
+        runCurrent()
 
         val state = manager.state.value
         assertThat(state).isInstanceOf(ConnectionState.Degraded::class.java)
         assertThat((state as ConnectionState.Degraded).reason)
             .isEqualTo(ir.karensoft.karentunnel.core.connection.DegradedReason.NoHandshake)
-        // The callback fires exactly once; recovery is the caller's decision.
+        // Fires exactly once, then the monitor stops; recovery is the caller's call.
         assertThat(degradedReasons).hasSize(1)
     }
 
