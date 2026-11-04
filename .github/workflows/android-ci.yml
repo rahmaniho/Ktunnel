@@ -79,6 +79,18 @@ jobs:
           fi
           exit "$status"
 
+      - name: Assemble debug APK
+        run: |
+          set +e
+          ./gradlew assembleDebug --stacktrace 2>&1 | tee -a /tmp/gradle.log
+          exit ${PIPESTATUS[0]}
+
+      - name: Lint (release-blocking)
+        run: |
+          set +e
+          ./gradlew lintDebug --stacktrace 2>&1 | tee /tmp/gradle.log
+          exit ${PIPESTATUS[0]}
+
       # Actions log archives and artifacts both redirect to a storage host that
       # the development sandbox cannot reach, and commit statuses are not being
       # delivered. So the compiler's own output is committed back to the branch:
@@ -150,18 +162,6 @@ jobs:
           done
           echo "::error::could not publish build diagnostics to the branch"
           exit 1
-
-      - name: Assemble debug APK
-        run: |
-          set +e
-          ./gradlew assembleDebug --stacktrace 2>&1 | tee -a /tmp/gradle.log
-          exit ${PIPESTATUS[0]}
-
-      - name: Lint (release-blocking)
-        run: |
-          set +e
-          ./gradlew lintDebug --stacktrace 2>&1 | tee /tmp/gradle.log
-          exit ${PIPESTATUS[0]}
 
       - name: Publish test + lint reports
         if: always()
